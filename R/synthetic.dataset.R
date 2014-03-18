@@ -46,11 +46,11 @@ det.lorenz <- function(u){
     r <- 45.6
     b <- 5
     
-    x <- u[1]
-    y <- u[2]
-    z <- u[3]
+    x <- u[,1]
+    y <- u[,2]
+    z <- u[,3]
 
-    du <- c(sigma * (y - x), r * x - y - 20 * x * z, 5 * x * y - b * z)
+    du <- cbind(sigma * (y - x), r * x - y - 20 * x * z, 5 * x * y - b * z)
 }
 
 jacob.lorenz <- function(u){

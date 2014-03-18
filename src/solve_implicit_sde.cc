@@ -40,6 +40,12 @@ NumericMatrix as_r_matrix(umatrix m_){
   return x;
 }
 
+NumericMatrix as_r_matrix(uvector v){
+  NumericMatrix x(1, v.size());
+  memcpy(&x[0], &v[0], v.size() * sizeof(double));
+  return x;
+}
+
 umatrix as_ublas_matrix(NumericMatrix m){
   // as odeint::implicit_euler insists on using row-major ublas::matrix, we must transpose here...
   umatrix x_(m.ncol(), m.nrow());
@@ -67,7 +73,7 @@ struct r_deriv{
   r_deriv(Rcpp::Function d, Rcpp::Function s, double delta_t) : det(d), stoch(s), h(delta_t){}
 
   void operator()(uvector &q, uvector &out, double t){
-    uvector dpart = as_ublas_vector(det(as_r_vector(q)));
+    uvector dpart = as_ublas_vector(det(as_r_matrix(q)));
     uvector spart = as_ublas_vector(stoch(t));
     out = dpart + (1 / sqrt(h)) * spart;
   }
