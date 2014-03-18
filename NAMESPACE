@@ -1,0 +1,7 @@
+export(solve_general_sde)
+exportPattern("^[[:alpha:]]+")
+import(data.table)
+import(plyr)
+import(timetablr)
+importFrom(Rcpp,evalCpp)
+useDynLib(SimpleSDESampler)
