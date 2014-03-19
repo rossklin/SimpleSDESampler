@@ -52,7 +52,7 @@
 #' @export
 synthetic.dataset <- function( num.entities = 10
                               , tmax = 10
-                              , steps = 40 * tmax
+                              , steps = 400 * tmax
                               , process.noise.sd = 0
                               , observation.noise.sd = .01
                               , do.standardise = F
