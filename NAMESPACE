@@ -1,4 +1,6 @@
 export(solve_general_sde)
+export(solve_implicit_sde)
+export(synthetic.dataset)
 exportPattern("^[[:alpha:]]+")
 import(data.table)
 import(plyr)
