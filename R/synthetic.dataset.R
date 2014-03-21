@@ -104,6 +104,8 @@ det.lorenz <- function(u){
     du <- cbind(sigma * (y - x), r * x - y - 20 * x * z, 5 * x * y - b * z)
 }
 
+attr(det.lorenz, "description") <- list("dx/dt = 16 y - 16 x", "dy/dt = 45.6 x - y - 20 x z", "dz/dt = 5 x y - 5 z")
+
 jacob.lorenz <- function(u){
     sigma <- 16
     r <- 45.6
