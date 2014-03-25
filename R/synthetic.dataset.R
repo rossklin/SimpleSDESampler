@@ -63,7 +63,8 @@ synthetic.dataset <- function( num.entities = 10
                               , det.deriv = det.lorenz
                               , stoch.deriv = concistent.lindep.noise(seq(0, tmax, length.out = steps + 1), 3, process.noise.sd)
 			      , jacobian = jacob.lorenz
-                              , at.times = seq(0, tmax, length.out = 1001)){
+                              , at.times = seq(0, tmax, length.out = 1001)
+			      , save.to = NULL){
 
     dimension = length(initial.generator(0))
 
@@ -86,6 +87,10 @@ synthetic.dataset <- function( num.entities = 10
     dt <- data.table(df, key = c("entity", "time"))
 
     if (!is.null(at.times)) dt <- dt[time %in% at.times]
+
+    if (!is.null(save.to)){
+      write.csv(dt, save.to, row.names = F)
+    }
 
     dt
 }
