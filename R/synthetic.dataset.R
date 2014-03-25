@@ -50,6 +50,7 @@
 #' where det.deriv is f and stoch.deriv is (at the moment) g * e
 #' (probably will change so stoch.deriv is only g in the future)
 #' @export
+
 synthetic.dataset <- function( num.entities = 10
                               , tmax = 10
                               , steps = 400 * tmax
@@ -60,7 +61,7 @@ synthetic.dataset <- function( num.entities = 10
                                   rnorm(3)
                               }
                               , det.deriv = det.lorenz
-                              , stoch.deriv = function(t) concistent.lindep.noise(t, seq(0, tmax, length.out = steps + 1), 3)
+                              , stoch.deriv = concistent.lindep.noise(seq(0, tmax, length.out = steps + 1), 3, process.noise.sd)
 			      , jacobian = jacob.lorenz
                               , at.times = seq(0, tmax, length.out = 1001)){
 
@@ -124,7 +125,10 @@ det.linear2d <- function(u){
     du <- c(-u[2], u[1])
 }
 
-concistent.lindep.noise <- function(t, tlist, d){
-  set.seed(which.min(abs(tlist - t)))
-  rnorm(d)
+concistent.lindep.noise <- function(tlist, d, sd){
+  n <- length(tlist)
+  stoch.data <- matrix(rnorm(n * d, 0, sd), n, d)
+  function(t){
+    stoch.data[which.min(abs(tlist - t)),]
+  }
 }
