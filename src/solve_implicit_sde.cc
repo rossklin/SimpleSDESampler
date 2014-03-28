@@ -11,11 +11,7 @@
 #include <utility>
 #include <exception>
 
-#include <boost/optional/optional.hpp>
 #include <boost/numeric/odeint.hpp>
-#include <boost/math/tools/roots.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
