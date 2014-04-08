@@ -61,7 +61,7 @@ synthetic.dataset <- function( num.entities = 10
                                   rnorm(3)
                               }
                               , det.deriv = det.lorenz
-                              , stoch.deriv = concistent.lindep.noise(seq(0, tmax, length.out = steps + 1), 3, process.noise.sd)
+                              , stoch.deriv = concistent.lindep.noise(steps + 2, 3, process.noise.sd)
 			      , jacobian = jacob.lorenz
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
@@ -130,10 +130,10 @@ det.linear2d <- function(u){
     du <- c(-u[2], u[1])
 }
 
-concistent.lindep.noise <- function(tlist, d, sd){
-  n <- length(tlist) + 1
+concistent.lindep.noise <- function(ntimes, d, sd){
+  n <- ntimes
   stoch.data <- matrix(rnorm(n * d, 0, sd), n, d)
   function(idx){
-    stoch.data[idx %% nrow(stoch.data),]
+    stoch.data[idx %% n,]
   }
 }

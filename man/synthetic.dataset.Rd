@@ -5,9 +5,9 @@
 synthetic.dataset(num.entities = 10, tmax = 10, steps = 400 * tmax,
   process.noise.sd = 0, observation.noise.sd = 0.01, do.standardise = F,
   initial.generator = function(i) {     rnorm(3) }, det.deriv = det.lorenz,
-  stoch.deriv = concistent.lindep.noise(seq(0, tmax, length.out = steps + 1),
-  3, process.noise.sd), jacobian = jacob.lorenz, at.times = seq(0, tmax,
-  length.out = 1001), save.to = NULL)
+  stoch.deriv = concistent.lindep.noise(steps + 2, 3, process.noise.sd),
+  jacobian = jacob.lorenz, at.times = seq(0, tmax, length.out = 1001),
+  save.to = NULL)
 }
 \arguments{
   \item{num.entities}{Number of sample trajectories to
