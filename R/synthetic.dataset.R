@@ -133,7 +133,7 @@ det.linear2d <- function(u){
 concistent.lindep.noise <- function(tlist, d, sd){
   n <- length(tlist)
   stoch.data <- matrix(rnorm(n * d, 0, sd), n, d)
-  function(t){
-    stoch.data[which.min(abs(tlist - t)),]
+  function(idx){
+    stoch.data[idx,]
   }
 }
