@@ -71,7 +71,7 @@ struct r_deriv{
   void operator()(uvector &q, uvector &out, double t){
     uvector dpart = as_ublas_vector(det(as_r_matrix(q)));
     uvector spart = as_ublas_vector(stoch(((int)(t/h)) + 1));
-    out = dpart + (1 / sqrt(h)) * spart;
+    out = dpart + (1 / sqrt(h)) * spart;    
   }
 };
 
