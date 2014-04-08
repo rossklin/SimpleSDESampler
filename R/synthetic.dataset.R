@@ -134,6 +134,6 @@ concistent.lindep.noise <- function(tlist, d, sd){
   n <- length(tlist) + 1
   stoch.data <- matrix(rnorm(n * d, 0, sd), n, d)
   function(idx){
-    stoch.data[idx,]
+    stoch.data[idx %% nrow(stoch.data),]
   }
 }
