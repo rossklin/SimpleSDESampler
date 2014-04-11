@@ -27,8 +27,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // solve_implicit_sde
-NumericMatrix solve_implicit_sde(Rcpp::Function d_det, Rcpp::Function d_stoch, Rcpp::Function jacobian, NumericVector start, double from, double to, int steps);
-RcppExport SEXP SimpleSDESampler_solve_implicit_sde(SEXP d_detSEXP, SEXP d_stochSEXP, SEXP jacobianSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
+NumericMatrix solve_implicit_sde(Rcpp::Function d_det, Rcpp::Function d_stoch, Rcpp::Function jacobian, double sigma, NumericVector start, double from, double to, int steps);
+RcppExport SEXP SimpleSDESampler_solve_implicit_sde(SEXP d_detSEXP, SEXP d_stochSEXP, SEXP jacobianSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -36,11 +36,12 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< Rcpp::Function >::type d_det(d_detSEXP );
         Rcpp::traits::input_parameter< Rcpp::Function >::type d_stoch(d_stochSEXP );
         Rcpp::traits::input_parameter< Rcpp::Function >::type jacobian(jacobianSEXP );
+        Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type start(startSEXP );
         Rcpp::traits::input_parameter< double >::type from(fromSEXP );
         Rcpp::traits::input_parameter< double >::type to(toSEXP );
         Rcpp::traits::input_parameter< int >::type steps(stepsSEXP );
-        NumericMatrix __result = solve_implicit_sde(d_det, d_stoch, jacobian, start, from, to, steps);
+        NumericMatrix __result = solve_implicit_sde(d_det, d_stoch, jacobian, sigma, start, from, to, steps);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

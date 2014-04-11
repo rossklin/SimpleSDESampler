@@ -7,7 +7,7 @@ solve_general_sde <- function(d_det, d_stoch, start, from, to, steps) {
 }
 
 #' @export
-solve_implicit_sde <- function(d_det, d_stoch, jacobian, start, from, to, steps) {
-    .Call('SimpleSDESampler_solve_implicit_sde', PACKAGE = 'SimpleSDESampler', d_det, d_stoch, jacobian, start, from, to, steps)
+solve_implicit_sde <- function(d_det, d_stoch, jacobian, sigma, start, from, to, steps) {
+    .Call('SimpleSDESampler_solve_implicit_sde', PACKAGE = 'SimpleSDESampler', d_det, d_stoch, jacobian, sigma, start, from, to, steps)
 }
 

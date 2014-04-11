@@ -14,6 +14,8 @@
 #include <boost/numeric/odeint.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/normal_distribution.hpp>
 
 #include <Rcpp.h>
 
@@ -65,13 +67,48 @@ struct r_deriv{
   double h;
   Rcpp::Function det;
   Rcpp::Function stoch;
+  umatrix noise_precache;
 
   r_deriv(Rcpp::Function d, Rcpp::Function s, double delta_t) : det(d), stoch(s), h(delta_t){}
 
   void operator()(uvector &q, uvector &out, double t){
-    uvector dpart = as_ublas_vector(det(as_r_matrix(q)));
-    uvector spart = as_ublas_vector(stoch(((int)(t/h)) + 1));
-    out = dpart + (1 / sqrt(h)) * spart;    
+    NumericMatrix rq = as_r_matrix(q);
+    uvector dpart = as_ublas_vector(det(rq));
+    umatrix spart = as_ublas_matrix(stoch(rq,t));
+    uvector buf(spart.size1());
+    
+    axpy_prod(spart, noise(t), buf);
+
+    out = dpart + (1 / sqrt(h)) * buf;
+  }
+
+  uvector noise(double t){
+    int idx = t / h;
+    int dim = noise_precache.size2();
+    uvector x(dim);
+
+    if (idx >= noise_precache.size1()){
+      Rcpp::Rcout << "Invalid time index: " << idx << endl;
+      exit(1);
+    }
+
+    memcpy(&x[0], &noise_precache(idx,0), dim * sizeof(double));
+    return x;
+  }
+
+  void build_noise(int n, int d, double sigma){
+    int i;
+    int size = n * d;
+    double *p;
+    boost::random::mt19937 rng;
+    boost::random::normal_distribution<> ndist(0, sigma);
+    
+    noise_precache.resize(n, d);
+    p = &noise_precache(0,0);
+    
+    for (i = 0; i < size; i++){
+      p[i] = ndist(rng);
+    }
   }
 };
 
@@ -90,6 +127,7 @@ struct r_jacobian{
 NumericMatrix solve_implicit_sde(Rcpp::Function d_det
 				 , Rcpp::Function d_stoch
 				 , Rcpp::Function jacobian
+				 , double sigma
 				 , NumericVector start
 				 , double from, double to, int steps ) {
 
@@ -97,10 +135,10 @@ NumericMatrix solve_implicit_sde(Rcpp::Function d_det
   const double dt = (to - from)/steps;
   r_deriv sd = r_deriv(d_det, d_stoch, dt);
   r_jacobian sj = r_jacobian(jacobian);
-
   uvector state = as_ublas_vector(start);
-
   NumericMatrix result(steps+1, start.size());
+
+  sd.build_noise(steps + 2, start.size(), sigma);
 
   for(int j = 0; j < start.size(); ++j)
     result(0, j) = state[j];

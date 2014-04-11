@@ -61,7 +61,7 @@ synthetic.dataset <- function( num.entities = 10
                                   rnorm(3)
                               }
                               , det.deriv = det.lorenz
-                              , stoch.deriv = concistent.lindep.noise(steps + 2, 3, process.noise.sd)
+                              , stoch.deriv = function(x, t) diag(rep(1,3))
 			      , jacobian = jacob.lorenz
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
@@ -72,6 +72,7 @@ synthetic.dataset <- function( num.entities = 10
                                                                  , u = solve_implicit_sde( det.deriv
                                                                        , stoch.deriv
 								       , jacobian
+								       , process.noise.sd
                                                                        , initial.generator(i)
                                                                        , 0
                                                                        , tmax
@@ -130,10 +131,10 @@ det.linear2d <- function(u){
     du <- c(-u[2], u[1])
 }
 
-concistent.lindep.noise <- function(ntimes, d, sd){
-  n <- ntimes
-  stoch.data <- matrix(rnorm(n * d, 0, sd), n, d)
-  function(idx){
-    stoch.data[idx %% n,]
-  }
-}
+#concistent.lindep.noise <- function(ntimes, d, sd){
+#  n <- ntimes
+#  stoch.data <- matrix(rnorm(n * d, 0, sd), n, d)
+#  function(idx){
+#    stoch.data[idx %% n,]
+#  }
+#}
