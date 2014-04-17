@@ -71,13 +71,14 @@ test_that( "solve_implicit_sde_averages produces concistent estimates for a line
 				 , from = 0
 				 , to = pi/2
 				 , steps = 400), 1)), {
-        expect_less_than(sqrt(sum((res - c(1,0))^2)), 0.1)
+        expect_less_than(sqrt(sum((res - c(1,0))^2)), 0.05)
     })
 })
 
 test_that( "solve_implicit_sde uses different random seeds", {
+    print.noquote("Testing random seeds...")
     with( data = list( x1 = solve_implicit_sde( d_det = function(u, t) -u
-    	      			    , d_stoch = function(u, t) matrix(0, 1, 1)
+    	      			    , d_stoch = function(u, t) matrix(1)
 				    , jacobian = function(u, t) matrix(-1)
 				    , sigma = 0.1
 				    , start = 1
@@ -85,13 +86,13 @@ test_that( "solve_implicit_sde uses different random seeds", {
 				    , to = 1
 				    , steps = 400), 
                        x2 = solve_implicit_sde( d_det = function(u, t) -u
-    	      			    , d_stoch = function(u, t) matrix(0, 1, 1)
+    	      			    , d_stoch = function(u, t) matrix(1)
 				    , jacobian = function(u, t) matrix(-1)
 				    , sigma = 0.1
 				    , start = 1
 				    , from = 0
 				    , to = 1
 				    , steps = 400)), {
-        expect_that(sum(as.numeric(x1 == x2)), equals(2))
+        expect_that(sum(as.numeric(x1 == x2)), equals(1))
     })
 })

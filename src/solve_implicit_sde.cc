@@ -17,6 +17,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/random/variate_generator.hpp>
 
 #include <Rcpp.h>
 
@@ -101,14 +102,19 @@ struct r_deriv{
     int i;
     int size = n * d;
     double *p;
-    boost::random::mt19937 rng(time(0));
-    boost::random::normal_distribution<> ndist(0, sigma);
-    
+
+    boost::mt19937 gener;
+    boost::normal_distribution<> normal(0,sigma);
+    boost::variate_generator<boost::mt19937&,boost::normal_distribution<> > rng(gener, normal);
+
+    rng.engine().seed(clock());
+    rng.distribution().reset();
+
     noise_precache.resize(n, d);
     p = &noise_precache(0,0);
     
     for (i = 0; i < size; i++){
-      p[i] = ndist(rng);
+      p[i] = rng();
     }
   }
 };
@@ -185,6 +191,7 @@ NumericMatrix solve_implicit_sde_averages( int nrep
   int i,j;
   double *p, *q;
   int smax = result.nrow() * result.ncol();
+
   p = &result(0,0);
 
   memset(p, 0, smax * sizeof(double));
@@ -198,6 +205,7 @@ NumericMatrix solve_implicit_sde_averages( int nrep
 			      , from
 			      , to
 			      , steps);
+
     q = &buf(0,0);
     for (j = 0; j < smax; j++){
       p[j] += q[j];
