@@ -30,10 +30,27 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 test_that( "synthetic.dataset produces expected structure", {
-    print.noquote("Testing data structure...")
+    print.noquote("Testing data structure: synthetic dataset...")
     with(data = list(tt = synthetic.dataset(num.entities = 2, tmax = 1, at.times = seq(0,1,0.01))),{
         expect_that(nrow(tt), equals(202))
         expect_that(colnames(tt), equals(c("entity", "time", "u.1", "u.2", "u.3")))
+    })
+})
+
+test_that( "solve_implicit_sde_averages produces expected structure", {
+    print.noquote("Testing data structure: solve_implicit_sde_averages...")
+    A <- matrix(c(0, -1, 1, 0), 2, 2)
+    with(data = list(tt = solve_implicit_sde_averages(
+				 nrep = 10
+    	      		     	 , d_det = function(u, t) t(A %*% t(u))
+    	      			 , d_stoch = function(u, t) diag(rep(1,2))
+				 , jacobian = function(u, t) A
+				 , sigma = 0.1
+				 , start = c(0,1)
+				 , from = 0
+				 , to = pi/2
+				 , steps = 400)), {
+        expect_equal(dim(tt), c(401, 2))
     })
 })
 
