@@ -39,9 +39,9 @@ test_that( "synthetic.dataset produces expected structure", {
 
 test_that( "solve_implicit_sde produces correct solution to deterministic test equation", {
     print.noquote("Testing scalar test equation...")
-    with(data = list(tt = solve_implicit_sde( d_det = function(u) -u
+    with(data = list(tt = solve_implicit_sde( d_det = function(u, t) -u
     	      			    , d_stoch = function(u, t) matrix(0, 1, 1)
-				    , jacobian = function(u) matrix(-1)
+				    , jacobian = function(u, t) matrix(-1)
 				    , sigma = 0
 				    , start = 1
 				    , from = 0
@@ -63,14 +63,35 @@ test_that( "solve_implicit_sde_averages produces concistent estimates for a line
     A <- matrix(c(0, -1, 1, 0), 2, 2)
     with(data = list(res = tail( solve_implicit_sde_averages(
 				 nrep = 100
-    	      		     	 , d_det = function(u) t(A %*% t(u))
+    	      		     	 , d_det = function(u, t) t(A %*% t(u))
     	      			 , d_stoch = function(u, t) diag(rep(1,2))
-				 , jacobian = function(u) A
+				 , jacobian = function(u, t) A
 				 , sigma = 0.1
 				 , start = c(0,1)
 				 , from = 0
 				 , to = pi/2
 				 , steps = 400), 1)), {
         expect_less_than(sqrt(sum((res - c(1,0))^2)), 0.1)
+    })
+})
+
+test_that( "solve_implicit_sde uses different random seeds", {
+    with( data = list( x1 = solve_implicit_sde( d_det = function(u, t) -u
+    	      			    , d_stoch = function(u, t) matrix(0, 1, 1)
+				    , jacobian = function(u, t) matrix(-1)
+				    , sigma = 0.1
+				    , start = 1
+				    , from = 0
+				    , to = 1
+				    , steps = 400), 
+                       x2 = solve_implicit_sde( d_det = function(u, t) -u
+    	      			    , d_stoch = function(u, t) matrix(0, 1, 1)
+				    , jacobian = function(u, t) matrix(-1)
+				    , sigma = 0.1
+				    , start = 1
+				    , from = 0
+				    , to = 1
+				    , steps = 400)), {
+        expect_that(sum(as.numeric(x1 == x2)), equals(2))
     })
 })

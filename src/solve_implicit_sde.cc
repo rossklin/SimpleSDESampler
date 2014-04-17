@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstring>
+#include <ctime>
 
 #include <vector>
 #include <utility>
@@ -73,8 +74,8 @@ struct r_deriv{
 
   void operator()(uvector &q, uvector &out, double t){
     NumericMatrix rq = as_r_matrix(q);
-    uvector dpart = as_ublas_vector(det(rq));
-    umatrix spart = as_ublas_matrix(stoch(rq,t));
+    uvector dpart = as_ublas_vector(det(rq, t));
+    umatrix spart = as_ublas_matrix(stoch(rq, t));
     uvector buf(spart.size1());
     
     axpy_prod(spart, noise(t), buf);
@@ -100,7 +101,7 @@ struct r_deriv{
     int i;
     int size = n * d;
     double *p;
-    boost::random::mt19937 rng;
+    boost::random::mt19937 rng(time(0));
     boost::random::normal_distribution<> ndist(0, sigma);
     
     noise_precache.resize(n, d);
@@ -118,13 +119,13 @@ struct r_jacobian{
   r_jacobian(Rcpp::Function j) : J(j){}
 
   void operator()(uvector &q, umatrix &out, double t){
-    out = as_ublas_matrix(J(as_r_vector(q)));
+    out = as_ublas_matrix(J(as_r_vector(q), t));
   }
 };
 
-//' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
+//' @param d_det Deterministic component: an R function: (m x n matrix of m states, scalar time) -> m x n matrix of m time derivatives
 //' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
-//' @param jacobian Jacobian of deterministic component: an R function: n vector state -> n x n matrix df_i / du_j
+//' @param jacobian Jacobian of deterministic component: an R function: (n vector state, scalar time) -> n x n matrix df_i / du_j
 //' @param sigma Amplitude of noise: scalar
 //' @param start Initial position: n vector
 //' @param from Initial time: scalar
@@ -163,7 +164,7 @@ NumericMatrix solve_implicit_sde(Rcpp::Function d_det
 //' @param nrep Number of repetitions to average over: integer
 //' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
 //' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
-//' @param jacobian Jacobian of deterministic component: an R function: n vector state -> n x n matrix df_i / du_j
+//' @param jacobian Jacobian of deterministic component: an R function: (n vector state, scalar time) -> n x n matrix df_i / du_j
 //' @param sigma Amplitude of noise: scalar
 //' @param start Initial position: n vector
 //' @param from Initial time: scalar

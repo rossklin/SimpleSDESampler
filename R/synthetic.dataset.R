@@ -96,7 +96,7 @@ synthetic.dataset <- function( num.entities = 10
     dt
 }
 
-det.lorenz <- function(u){
+det.lorenz <- function(u,t){
     ## lorenz system proposed by Chi-Chung Chen and Kung Yao
     ## in STOCHASTIC CALCULUS NUMERICAL EVALUATION OF CHAOTIC COMMUNICATION SYSTEM PERFORMANCE
     ## note: behaviour seems stable with respect to each parameter value
@@ -113,7 +113,7 @@ det.lorenz <- function(u){
 
 attr(det.lorenz, "description") <- list("dx/dt = 16 y - 16 x", "dy/dt = 45.6 x - y - 20 x z", "dz/dt = 5 x y - 5 z")
 
-jacob.lorenz <- function(u){
+jacob.lorenz <- function(u,t){
     sigma <- 16
     r <- 45.6
     b <- 5
@@ -127,7 +127,7 @@ jacob.lorenz <- function(u){
 	      , 5 * y, 5 * x, -b), nrow = 3, ncol = 3)
 }
 
-det.linear2d <- function(u){
+det.linear2d <- function(u,t){
     du <- c(-u[2], u[1])
 }
 
