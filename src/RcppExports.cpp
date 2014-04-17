@@ -48,3 +48,26 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// solve_implicit_sde_averages
+NumericMatrix solve_implicit_sde_averages(int nrep, Rcpp::Function d_det, Rcpp::Function d_stoch, Rcpp::Function jacobian, double sigma, NumericVector start, double from, double to, int steps);
+RcppExport SEXP SimpleSDESampler_solve_implicit_sde_averages(SEXP nrepSEXP, SEXP d_detSEXP, SEXP d_stochSEXP, SEXP jacobianSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< int >::type nrep(nrepSEXP );
+        Rcpp::traits::input_parameter< Rcpp::Function >::type d_det(d_detSEXP );
+        Rcpp::traits::input_parameter< Rcpp::Function >::type d_stoch(d_stochSEXP );
+        Rcpp::traits::input_parameter< Rcpp::Function >::type jacobian(jacobianSEXP );
+        Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type start(startSEXP );
+        Rcpp::traits::input_parameter< double >::type from(fromSEXP );
+        Rcpp::traits::input_parameter< double >::type to(toSEXP );
+        Rcpp::traits::input_parameter< int >::type steps(stepsSEXP );
+        NumericMatrix __result = solve_implicit_sde_averages(nrep, d_det, d_stoch, jacobian, sigma, start, from, to, steps);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}

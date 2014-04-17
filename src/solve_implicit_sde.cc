@@ -122,6 +122,14 @@ struct r_jacobian{
   }
 };
 
+//' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
+//' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
+//' @param jacobian Jacobian of deterministic component: an R function: n vector state -> n x n matrix df_i / du_j
+//' @param sigma Amplitude of noise: scalar
+//' @param start Initial position: n vector
+//' @param from Initial time: scalar
+//' @param to Final time: scalar
+//' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
 //' @export
 // [[Rcpp::export]]
 NumericMatrix solve_implicit_sde(Rcpp::Function d_det
@@ -151,3 +159,53 @@ NumericMatrix solve_implicit_sde(Rcpp::Function d_det
 
   return result;
 }
+
+//' @param nrep Number of repetitions to average over: integer
+//' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
+//' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
+//' @param jacobian Jacobian of deterministic component: an R function: n vector state -> n x n matrix df_i / du_j
+//' @param sigma Amplitude of noise: scalar
+//' @param start Initial position: n vector
+//' @param from Initial time: scalar
+//' @param to Final time: scalar
+//' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
+//' @export
+// [[Rcpp::export]]
+NumericMatrix solve_implicit_sde_averages( int nrep
+					   , Rcpp::Function d_det
+					   , Rcpp::Function d_stoch
+					   , Rcpp::Function jacobian
+					   , double sigma
+					   , NumericVector start
+					   , double from, double to, int steps){
+  
+  NumericMatrix result(steps+1, start.size());
+  NumericMatrix buf;
+  int i,j;
+  double *p, *q;
+  int smax = result.nrow() * result.ncol();
+  p = &result(0,0);
+
+  memset(p, 0, smax * sizeof(double));
+  
+  for (i = 0; i < nrep; i++){
+    buf = solve_implicit_sde( d_det
+			      , d_stoch
+			      , jacobian
+			      , sigma
+			      , start
+			      , from
+			      , to
+			      , steps);
+    q = &buf(0,0);
+    for (j = 0; j < smax; j++){
+      p[j] += q[j];
+    }
+  }
+
+  for (j = 0; j < smax; j++){
+    p[j] /= nrep;
+  }
+
+  return result;
+} 

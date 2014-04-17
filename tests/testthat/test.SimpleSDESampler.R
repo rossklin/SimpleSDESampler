@@ -51,7 +51,7 @@ test_that( "solve_implicit_sde produces correct solution to deterministic test e
     })
 })
 
-test_that( "solve_implicit_sde produces concistent estimates for a linear system", {
+test_that( "solve_implicit_sde_averages produces concistent estimates for a linear system", {
     # solution to du/dt = v, dv/dt = -u:
     # u = sin(t) + c1
     # v = cos(t) + c2
@@ -61,16 +61,16 @@ test_that( "solve_implicit_sde produces concistent estimates for a linear system
     print.noquote("Testing concistency on linear system...")
     
     A <- matrix(c(0, -1, 1, 0), 2, 2)
-    with(data = list(ends = aaply(1:100, 1, function(i) tail(solve_implicit_sde( 
-    	      		     	      d_det = function(u) t(A %*% t(u))
-    	      			    , d_stoch = function(u, t) diag(rep(1,2))
-				    , jacobian = function(u) A
-				    , sigma = 0.1
-				    , start = c(0,1)
-				    , from = 0
-				    , to = pi/2
-				    , steps = 400), 1), .progress = "text")), {
-        est <- colMeans(ends)
-        expect_less_than(sqrt(sum((est - c(1,0))^2)), 0.1)
+    with(data = list(res = tail( solve_implicit_sde_averages(
+				 nrep = 100
+    	      		     	 , d_det = function(u) t(A %*% t(u))
+    	      			 , d_stoch = function(u, t) diag(rep(1,2))
+				 , jacobian = function(u) A
+				 , sigma = 0.1
+				 , start = c(0,1)
+				 , from = 0
+				 , to = pi/2
+				 , steps = 400), 1)), {
+        expect_less_than(sqrt(sum((res - c(1,0))^2)), 0.1)
     })
 })

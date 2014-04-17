@@ -6,8 +6,30 @@ solve_general_sde <- function(d_det, d_stoch, start, from, to, steps) {
     .Call('SimpleSDESampler_solve_general_sde', PACKAGE = 'SimpleSDESampler', d_det, d_stoch, start, from, to, steps)
 }
 
+#' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
+#' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
+#' @param jacobian Jacobian of deterministic component: an R function: n vector state -> n x n matrix df_i / du_j
+#' @param sigma Amplitude of noise: scalar
+#' @param start Initial position: n vector
+#' @param from Initial time: scalar
+#' @param to Final time: scalar
+#' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
 #' @export
 solve_implicit_sde <- function(d_det, d_stoch, jacobian, sigma, start, from, to, steps) {
     .Call('SimpleSDESampler_solve_implicit_sde', PACKAGE = 'SimpleSDESampler', d_det, d_stoch, jacobian, sigma, start, from, to, steps)
+}
+
+#' @param nrep Number of repetitions to average over: integer
+#' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
+#' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
+#' @param jacobian Jacobian of deterministic component: an R function: n vector state -> n x n matrix df_i / du_j
+#' @param sigma Amplitude of noise: scalar
+#' @param start Initial position: n vector
+#' @param from Initial time: scalar
+#' @param to Final time: scalar
+#' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
+#' @export
+solve_implicit_sde_averages <- function(nrep, d_det, d_stoch, jacobian, sigma, start, from, to, steps) {
+    .Call('SimpleSDESampler_solve_implicit_sde_averages', PACKAGE = 'SimpleSDESampler', nrep, d_det, d_stoch, jacobian, sigma, start, from, to, steps)
 }
 
