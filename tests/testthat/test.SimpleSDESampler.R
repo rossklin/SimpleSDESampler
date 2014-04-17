@@ -30,6 +30,7 @@
 ## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 test_that( "synthetic.dataset produces expected structure", {
+    print.noquote("Testing data structure...")
     with(data = list(tt = synthetic.dataset(num.entities = 2, tmax = 1, at.times = seq(0,1,0.01))),{
         expect_that(nrow(tt), equals(202))
         expect_that(colnames(tt), equals(c("entity", "time", "u.1", "u.2", "u.3")))
@@ -37,15 +38,39 @@ test_that( "synthetic.dataset produces expected structure", {
 })
 
 test_that( "solve_implicit_sde produces correct solution to deterministic test equation", {
-    with(data = list(tt = solve_implicit_sde( d_det = function(u) u
+    print.noquote("Testing scalar test equation...")
+    with(data = list(tt = solve_implicit_sde( d_det = function(u) -u
     	      			    , d_stoch = function(u, t) matrix(0, 1, 1)
-				    , jacobian = function(u) matrix(1)
+				    , jacobian = function(u) matrix(-1)
 				    , sigma = 0
 				    , start = 1
 				    , from = 0
 				    , to = 1
 				    , steps = 400)), {
-        expect_true( abs(as.numeric(tail(tt, 1)) - exp(1)) < 0.1)
+        expect_less_than( abs(as.numeric(tail(tt, 1)) - exp(-1)), 0.001)
     })
 })
 
+test_that( "solve_implicit_sde produces concistent estimates for a linear system", {
+    # solution to du/dt = v, dv/dt = -u:
+    # u = sin(t) + c1
+    # v = cos(t) + c2
+    # so with [u,v](0) = [0,1]
+    # we expect E([u,v])(pi/2) = [1,0]
+    
+    print.noquote("Testing concistency on linear system...")
+    
+    A <- matrix(c(0, -1, 1, 0), 2, 2)
+    with(data = list(ends = aaply(1:100, 1, function(i) tail(solve_implicit_sde( 
+    	      		     	      d_det = function(u) t(A %*% t(u))
+    	      			    , d_stoch = function(u, t) diag(rep(1,2))
+				    , jacobian = function(u) A
+				    , sigma = 0.1
+				    , start = c(0,1)
+				    , from = 0
+				    , to = pi/2
+				    , steps = 400), 1), .progress = "text")), {
+        est <- colMeans(ends)
+        expect_less_than(sqrt(sum((est - c(1,0))^2)), 0.1)
+    })
+})
