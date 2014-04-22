@@ -151,8 +151,8 @@ void lpoly_jacobian::operator()(uvector &q, umatrix &out, double t){
 // [[Rcpp::export]]
 XPtr<lpoly_system_type> lpoly_make_system(NumericMatrix cm, NumericMatrix trm){
 
-  if (cm.nrow() != trm.ncol()){
-    Rcpp::Rcout << "lpoly_make_system: dimension mismatch: " << cm.nrow() << " != " << trm.ncol() << endl;
+  if (cm.ncol() != trm.nrow()){
+    Rcpp::Rcout << "lpoly_make_system: dimension mismatch: " << cm.ncol() << " != " << trm.nrow() << endl;
     exit(-1);
   }
 
