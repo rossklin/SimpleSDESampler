@@ -41,14 +41,13 @@
 #' @param do.standardise Standardise the output?
 #' @param initial.generator Function that takes an index and generates a starting point for a sample SDE trajectory.
 #' @param det.deriv Function computing the deterministic component of the time derivative given the state.
-#' @param stoch.deriv Function computing the stochastic component of the time derivative given the state.
+#' @param stoch.deriv Function computing the stochastic coefficient of the time derivative given the state.
 #' @param jacobian Function computing the jacobian of det.deriv with respect to the state variables.
 #' @param at.times Sequence of times to include in the output.
 #'
 #' Produces sample trajectories for an SDE on Ito form: 
-#' dx(t) = f(x(t)) dt + g(x(t), t) e(t) sqrt(dt)
-#' where det.deriv is f and stoch.deriv is (at the moment) g * e
-#' (probably will change so stoch.deriv is only g in the future)
+#' dx(t) = f(x(t), t) dt + g(x(t), t) e(t) sqrt(dt)
+#' where det.deriv is f and stoch.deriv is g
 #' @export
 
 synthetic.dataset <- function( num.entities = 10
@@ -80,21 +79,34 @@ synthetic.dataset <- function( num.entities = 10
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
     if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
-    ## tt <- as.time.table(df, "entity", "time", paste0("u.", seq_len(dimension)))
-    ## if (!is.null(at.times)) tt <- subset(tt, times = data.table(at.times), index = data.table(unique(index(tt))))
-    ## tt
-    ## for now, don't use time.table
+    tt <- as.time.table(df, "entity", "time", paste0("u.", seq_len(dimension)))
+    if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
     
-    dt <- data.table(df, key = c("entity", "time"))
-
-    if (!is.null(at.times)) dt <- dt[time %in% at.times]
-
     if (!is.null(save.to)){
-      write.csv(dt, save.to, row.names = F)
+      write.csv(df, save.to, row.names = F)
     }
-
-    dt
+    tt
 }
+
+#' Generate Synthetic Dataset: optimised for Laurent polynomial systems
+#'
+#' Simulate sample trajectories of an SDE and store the results in a time.table
+#'
+#' @param num.entities Number of sample trajectories to generate.
+#' @param tmax End of the time interval to integrate the SDE over.
+#' @param steps Number of time steps to use in the integration.
+#' @param process.noise.sd Standard deviation of the brownian motion component.
+#' @param observation.noise.sd Standard deviation of synthetic observation noise.
+#' @param do.standardise Standardise the output?
+#' @param initial.generator Function that takes an index and generates a starting point for a sample SDE trajectory.
+#' @param evaluation.system List containing a coefficient matrix "cm" and a matrix "trm" defining model terms
+#' see examples.lorenz.sys()
+#' @param at.times Sequence of times to include in the output.
+#'
+#' Produces sample trajectories for an SDE on Ito form: 
+#' dx(t) = f(x(t)) dt + g(x(t), t) e(t) sqrt(dt)
+#' where det.deriv is f and stoch.deriv is g
+#' @export
 
 synthetic.dataset.quick <- function( num.entities = 10
                               , tmax = 10
@@ -123,20 +135,13 @@ synthetic.dataset.quick <- function( num.entities = 10
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
     if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
-    ## tt <- as.time.table(df, "entity", "time", paste0("u.", seq_len(dimension)))
-    ## if (!is.null(at.times)) tt <- subset(tt, times = data.table(at.times), index = data.table(unique(index(tt))))
-    ## tt
-    ## for now, don't use time.table
+    tt <- as.time.table(df, "entity", "time", paste0("u.", seq_len(dimension)))
+    if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
     
-    dt <- data.table(df, key = c("entity", "time"))
-
-    if (!is.null(at.times)) dt <- dt[time %in% at.times]
-
     if (!is.null(save.to)){
-      write.csv(dt, save.to, row.names = F)
+      write.csv(df, save.to, row.names = F)
     }
-
-    dt
+    tt
 }
 
 examples.lorenz.sys <- function(s = 16, r = 45.6, b = 5){

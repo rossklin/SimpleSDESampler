@@ -33,7 +33,7 @@ synthetic.dataset(num.entities = 10, tmax = 10, steps = 400 * tmax,
   component of the time derivative given the state.}
 
   \item{stoch.deriv}{Function computing the stochastic
-  component of the time derivative given the state.}
+  coefficient of the time derivative given the state.}
 
   \item{jacobian}{Function computing the jacobian of
   det.deriv with respect to the state variables.}
@@ -42,10 +42,8 @@ synthetic.dataset(num.entities = 10, tmax = 10, steps = 400 * tmax,
   output.
 
   Produces sample trajectories for an SDE on Ito form:
-  dx(t) = f(x(t)) dt + g(x(t), t) e(t) sqrt(dt) where
-  det.deriv is f and stoch.deriv is (at the moment) g * e
-  (probably will change so stoch.deriv is only g in the
-  future)}
+  dx(t) = f(x(t), t) dt + g(x(t), t) e(t) sqrt(dt) where
+  det.deriv is f and stoch.deriv is g}
 }
 \description{
 Simulate sample trajectories of an SDE and store the
