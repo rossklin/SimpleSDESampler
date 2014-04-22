@@ -96,6 +96,65 @@ synthetic.dataset <- function( num.entities = 10
     dt
 }
 
+synthetic.dataset.quick <- function( num.entities = 10
+                              , tmax = 10
+                              , steps = 400 * tmax
+                              , process.noise.sd = 0
+                              , observation.noise.sd = .01
+                              , do.standardise = F
+                              , initial.generator = function(i){
+                                  rnorm(3)
+                              }
+                              , evaluation.system = examples.lorenz.sys()
+                              , at.times = seq(0, tmax, length.out = 1001)
+			      , save.to = NULL){
+
+    dimension = length(initial.generator(0))
+
+    lpsys <- lpoly_make_system(evaluation.system$cm, evaluation.system$trm)
+
+    df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
+                                                                 , u = lpoly_implicit_sde( lpsys
+								       , process.noise.sd
+                                                                       , initial.generator(i)
+                                                                       , 0
+                                                                       , tmax
+                                                                       , steps)), .progress = "text")
+    colnames(df)[[1]] <- "entity"
+    df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
+    if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
+    ## tt <- as.time.table(df, "entity", "time", paste0("u.", seq_len(dimension)))
+    ## if (!is.null(at.times)) tt <- subset(tt, times = data.table(at.times), index = data.table(unique(index(tt))))
+    ## tt
+    ## for now, don't use time.table
+    
+    dt <- data.table(df, key = c("entity", "time"))
+
+    if (!is.null(at.times)) dt <- dt[time %in% at.times]
+
+    if (!is.null(save.to)){
+      write.csv(dt, save.to, row.names = F)
+    }
+
+    dt
+}
+
+examples.lorenz.sys <- function(s = 16, r = 45.6, b = 5){
+  list(
+    ## coefficient matrix
+    cm = t(matrix(c( -s, s, 0, 0, 0, 0,
+       	  	      r, -1, 0, 0, -20, 0,
+		      0, 0, -b, 5, 0, 0), ncol = 3))
+    ## term specification
+    , trm = t(matrix(c( 1,0,0,
+      	    		0,1,0,
+			0,0,1,
+			1,1,0,
+			1,0,1,
+			0,1,1), nrow = 3))
+  )
+}
+
 det.lorenz <- function(u,t){
     ## lorenz system proposed by Chi-Chung Chen and Kung Yao
     ## in STOCHASTIC CALCULUS NUMERICAL EVALUATION OF CHAOTIC COMMUNICATION SYSTEM PERFORMANCE

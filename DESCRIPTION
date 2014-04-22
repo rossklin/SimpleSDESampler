@@ -1,7 +1,7 @@
 Package: SimpleSDESampler
 Type: Package
 Title: Simple SDE Sampler
-Version: 1.0
+Version: 1.1
 Date: 2014-03-13
 Author: Ross Linscott
 Maintainer: Ross Linscott <rossklin@gmail.com>

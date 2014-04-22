@@ -1,3 +1,5 @@
+export(lpoly_implicit_sde)
+export(lpoly_implicit_sde_averages)
 export(solve_general_sde)
 export(solve_implicit_sde)
 export(solve_implicit_sde_averages)
