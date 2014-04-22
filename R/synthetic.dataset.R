@@ -99,7 +99,7 @@ synthetic.dataset <- function( num.entities = 10
 #' @param observation.noise.sd Standard deviation of synthetic observation noise.
 #' @param do.standardise Standardise the output?
 #' @param initial.generator Function that takes an index and generates a starting point for a sample SDE trajectory.
-#' @param evaluation.system List containing a coefficient matrix "cm" and a matrix "trm" defining model terms
+#' @param sys lpoly system constructed with lpoly_make_system
 #' see examples.lorenz.sys()
 #' @param at.times Sequence of times to include in the output.
 #'
@@ -117,16 +117,14 @@ synthetic.dataset.quick <- function( num.entities = 10
                               , initial.generator = function(i){
                                   rnorm(3)
                               }
-                              , evaluation.system = examples.lorenz.sys()
+                              , sys = examples.lorenz.sys()
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
 
     dimension = length(initial.generator(0))
 
-    lpsys <- lpoly_make_system(evaluation.system$cm, evaluation.system$trm)
-
     df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
-                                                                 , u = lpoly_implicit_sde( lpsys
+                                                                 , u = lpoly_implicit_sde( sys = sys
 								       , process.noise.sd
                                                                        , initial.generator(i)
                                                                        , 0
@@ -145,19 +143,17 @@ synthetic.dataset.quick <- function( num.entities = 10
 }
 
 examples.lorenz.sys <- function(s = 16, r = 45.6, b = 5){
-  list(
-    ## coefficient matrix
-    cm = t(matrix(c( -s, s, 0, 0, 0, 0,
+  cm = t(matrix(c( -s, s, 0, 0, 0, 0,
        	  	      r, -1, 0, 0, -20, 0,
 		      0, 0, -b, 5, 0, 0), ncol = 3))
-    ## term specification
-    , trm = t(matrix(c( 1,0,0,
+  trm = t(matrix(c( 1,0,0,
       	    		0,1,0,
 			0,0,1,
 			1,1,0,
 			1,0,1,
 			0,1,1), nrow = 3))
-  )
+  
+  lpoly_make_system(cm, trm)
 }
 
 det.lorenz <- function(u,t){
