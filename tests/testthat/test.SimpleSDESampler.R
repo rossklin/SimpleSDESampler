@@ -37,6 +37,14 @@ test_that( "synthetic.dataset produces expected structure", {
     })
 })
 
+test_that( "synthetic.dataset.quick produces expected structure", {
+    print.noquote("Testing data structure: synthetic dataset...")
+    with(data = list(tt = synthetic.dataset.quick(num.entities = 2, tmax = 1, at.times = seq(0,1,0.01))),{
+        expect_that(nrow(tt), equals(202))
+        expect_that(colnames(tt), equals(c("entity", "time", "u.1", "u.2", "u.3")))
+    })
+})
+
 test_that( "solve_implicit_sde_averages produces expected structure", {
     print.noquote("Testing data structure: solve_implicit_sde_averages...")
     A <- matrix(c(0, -1, 1, 0), 2, 2)
@@ -94,6 +102,8 @@ test_that( "solve_implicit_sde_averages produces concistent estimates for a line
 
 test_that( "solve_implicit_sde uses different random seeds", {
     print.noquote("Testing random seeds...")
+
+    for (i in 1:10){
     with( data = list( x1 = solve_implicit_sde( d_det = function(u, t) -u
     	      			    , d_stoch = function(u, t) matrix(1)
 				    , jacobian = function(u, t) matrix(-1)
@@ -112,4 +122,78 @@ test_that( "solve_implicit_sde uses different random seeds", {
 				    , steps = 400)), {
         expect_that(sum(as.numeric(x1 == x2)), equals(1))
     })
+    }
+})
+
+test_that( "lpoly_implicit_sde_averages produces expected structure", {
+    print.noquote("Testing data structure: lpoly_implicit_sde_averages...")
+    A <- matrix(c(0, -1, 1, 0), 2, 2)
+    trm <- diag(rep(1,2))
+    lsys <- lpoly_make_system(A, trm)
+    with(data = list(tt = lpoly_implicit_sde_averages(
+				 nrep = 10
+    	      		     	 , sys = lsys
+				 , sigma = 0.1
+				 , start = c(0,1)
+				 , from = 0
+				 , to = pi/2
+				 , steps = 400)), {
+        expect_equal(dim(tt), c(401, 2))
+    })
+})
+
+test_that( "lpoly_implicit_sde produces correct solution to deterministic test equation", {
+    print.noquote("Testing scalar test equation...")
+    with(data = list(tt = lpoly_implicit_sde( sys = lpoly_make_system(matrix(-1), matrix(1))
+				    , sigma = 0
+				    , start = 1
+				    , from = 0
+				    , to = 1
+				    , steps = 400)), {
+        expect_less_than( abs(as.numeric(tail(tt, 1)) - exp(-1)), 0.001)
+    })
+})
+
+test_that( "lpoly_implicit_sde_averages produces concistent estimates for a linear system", {
+    # solution to du/dt = v, dv/dt = -u:
+    # u = sin(t) + c1
+    # v = cos(t) + c2
+    # so with [u,v](0) = [0,1]
+    # we expect E([u,v])(pi/2) = [1,0]
+    
+    print.noquote("Testing concistency on linear system...")
+    
+    A <- matrix(c(0, -1, 1, 0), 2, 2)
+    with(data = list(res = tail( lpoly_implicit_sde_averages(
+				 nrep = 100
+    	      		     	 , sys = lpoly_make_system(A, diag(rep(1,2)))
+				 , sigma = 0.1
+				 , start = c(0,1)
+				 , from = 0
+				 , to = pi/2
+				 , steps = 400), 1)), {
+        expect_less_than(sqrt(sum((res - c(1,0))^2)), 0.05)
+    })
+})
+
+test_that( "lpoly_implicit_sde uses different random seeds", {
+    print.noquote("Testing random seeds...")
+    lsys = lpoly_make_system(matrix(-1), matrix(1))
+    
+    for (i in 1:10){
+    with( data = list( x1 = lpoly_implicit_sde( sys = lsys
+				    , sigma = 0.1
+				    , start = 1
+				    , from = 0
+				    , to = 1
+				    , steps = 400), 
+                       x2 = lpoly_implicit_sde( sys = lsys
+				    , sigma = 0.1
+				    , start = 1
+				    , from = 0
+				    , to = 1
+				    , steps = 400)), {
+        expect_that(sum(as.numeric(x1 == x2)), equals(1))
+    })
+    }
 })

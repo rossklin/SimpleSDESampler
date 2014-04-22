@@ -41,6 +41,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #ifdef STANDALONE
 #include <RInside.h>
@@ -110,7 +111,10 @@ void lpoly_evaluator::build_noise(int n, int d, double sigma){
   boost::normal_distribution<> normal(0,sigma);
   boost::variate_generator<boost::mt19937&,boost::normal_distribution<> > rng(gener, normal);
 
-  rng.engine().seed(clock());
+  boost::posix_time::time_duration diff_time = boost::posix_time::microsec_clock::local_time() - boost::posix_time::second_clock::local_time();
+  unsigned int the_seed = diff_time.total_microseconds();
+
+  rng.engine().seed(the_seed);
   rng.distribution().reset();
 
   noise_precache.resize(n, d);
