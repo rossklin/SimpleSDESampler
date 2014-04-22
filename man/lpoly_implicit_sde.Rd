@@ -1,19 +1,12 @@
 \name{lpoly_implicit_sde}
 \alias{lpoly_implicit_sde}
+\title{LPoly System Implicit SDE Simulator}
 \usage{
 lpoly_implicit_sde(sys, sigma, start, from, to, steps)
 }
 \arguments{
-  \item{d_det}{Deterministic component: an R function: (m x
-  n matrix of m states, scalar time) -> m x n matrix of m
-  time derivatives}
-
-  \item{d_stoch}{Stochastic component: an R function: (1 x
-  n matrix state, scalar time) -> 1 x n matrix state}
-
-  \item{jacobian}{Jacobian of deterministic component: an R
-  function: (n vector state, scalar time) -> n x n matrix
-  df_i / du_j}
+  \item{sys}{lpoly_system_type XPtr object created with
+  lpoly_make_system}
 
   \item{sigma}{Amplitude of noise: scalar}
 
@@ -25,5 +18,8 @@ lpoly_implicit_sde(sys, sigma, start, from, to, steps)
 
   \item{steps}{Number of points to take, s.t. dt = (from -
   to) / (steps + 1): integer}
+}
+\description{
+LPoly System Implicit SDE Simulator
 }
 

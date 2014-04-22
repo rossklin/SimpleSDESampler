@@ -1,5 +1,6 @@
 \name{solve_implicit_sde_averages}
 \alias{solve_implicit_sde_averages}
+\title{General implicit SDE simulator: time-wise averages}
 \usage{
 solve_implicit_sde_averages(nrep, d_det, d_stoch, jacobian, sigma, start, from,
   to, steps)
@@ -29,5 +30,8 @@ solve_implicit_sde_averages(nrep, d_det, d_stoch, jacobian, sigma, start, from,
 
   \item{steps}{Number of points to take, s.t. dt = (from -
   to) / (steps + 1): integer}
+}
+\description{
+General implicit SDE simulator: time-wise averages
 }
 

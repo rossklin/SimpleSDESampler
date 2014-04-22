@@ -12,25 +12,13 @@
 #include <utility>
 #include <exception>
 
-#include <boost/numeric/odeint.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/variate_generator.hpp>
 
 #include <Rcpp.h>
 
-using Rcpp::NumericMatrix;
-using Rcpp::NumericVector;
-
-typedef boost::numeric::ublas::vector<double> uvector;
-typedef boost::numeric::ublas::matrix<double> umatrix;
-
-using namespace boost::numeric::odeint;
-using namespace boost::math;
-
-using namespace std;
+#include "../inst/include/SimpleSDESampler.h"
 
 NumericMatrix as_r_matrix(umatrix m_){
   // as odeint::implicit_euler insists on using row-major ublas::matrix, we must transpose here...
@@ -129,6 +117,7 @@ struct r_jacobian{
   }
 };
 
+//' General implicit SDE simulator
 //' @param d_det Deterministic component: an R function: (m x n matrix of m states, scalar time) -> m x n matrix of m time derivatives
 //' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
 //' @param jacobian Jacobian of deterministic component: an R function: (n vector state, scalar time) -> n x n matrix df_i / du_j
@@ -167,6 +156,7 @@ NumericMatrix solve_implicit_sde(Rcpp::Function d_det
   return result;
 }
 
+//' General implicit SDE simulator: time-wise averages
 //' @param nrep Number of repetitions to average over: integer
 //' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
 //' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state

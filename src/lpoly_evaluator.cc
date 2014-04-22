@@ -142,21 +142,23 @@ void lpoly_jacobian::operator()(uvector &q, umatrix &out, double t){
   out = prod(coef_matrix, term_derivs);
 }
 
-
+//' LPoly system constructor
+//' @export
 // [[Rcpp::export]]
 XPtr<lpoly_system_type> lpoly_make_system(NumericMatrix cm, NumericMatrix trm){
   return XPtr<lpoly_system_type>(new lpoly_system_type(lpoly_evaluator(cm,trm), lpoly_jacobian(cm, trm)), true);
 }
 
+//' LPoly model matrix generator
+//' @export
 // [[Rcpp::export]]
 NumericMatrix lpoly_model_matrix(XPtr<lpoly_system_type> lps, NumericMatrix data){
   return lps -> first.build(data);
 }
 
-
-//' @param d_det Deterministic component: an R function: (m x n matrix of m states, scalar time) -> m x n matrix of m time derivatives
-//' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
-//' @param jacobian Jacobian of deterministic component: an R function: (n vector state, scalar time) -> n x n matrix df_i / du_j
+//' LPoly System Implicit SDE Simulator
+//' 
+//' @param sys lpoly_system_type XPtr object created with lpoly_make_system
 //' @param sigma Amplitude of noise: scalar
 //' @param start Initial position: n vector
 //' @param from Initial time: scalar
@@ -189,10 +191,11 @@ NumericMatrix lpoly_implicit_sde(XPtr<lpoly_system_type> sys
   return result;
 }
 
+
+//' LPoly System Implicit SDE Simulator: time-wise averages
+//'
 //' @param nrep Number of repetitions to average over: integer
-//' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
-//' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
-//' @param jacobian Jacobian of deterministic component: an R function: (n vector state, scalar time) -> n x n matrix df_i / du_j
+//' @param sys lpoly_system_type XPtr object created with lpoly_make_system
 //' @param sigma Amplitude of noise: scalar
 //' @param start Initial position: n vector
 //' @param from Initial time: scalar

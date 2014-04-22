@@ -1,5 +1,6 @@
 \name{solve_implicit_sde}
 \alias{solve_implicit_sde}
+\title{General implicit SDE simulator}
 \usage{
 solve_implicit_sde(d_det, d_stoch, jacobian, sigma, start, from, to, steps)
 }
@@ -25,5 +26,8 @@ solve_implicit_sde(d_det, d_stoch, jacobian, sigma, start, from, to, steps)
 
   \item{steps}{Number of points to take, s.t. dt = (from -
   to) / (steps + 1): integer}
+}
+\description{
+General implicit SDE simulator
 }
 
