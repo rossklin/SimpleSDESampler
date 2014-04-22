@@ -65,6 +65,8 @@ synthetic.dataset <- function( num.entities = 10
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
 
+    if (!all(at.times %in% seq(0, tmax, length.out = steps + 1))) stop("Times don't match!")
+
     dimension = length(initial.generator(0))
 
     df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
@@ -120,6 +122,8 @@ synthetic.dataset.quick <- function( num.entities = 10
                               , sys = examples.lorenz.sys()
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
+
+    if (!all(at.times %in% seq(0, tmax, length.out = steps + 1))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 

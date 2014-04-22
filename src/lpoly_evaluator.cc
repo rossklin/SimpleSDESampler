@@ -150,6 +150,12 @@ void lpoly_jacobian::operator()(uvector &q, umatrix &out, double t){
 //' @export
 // [[Rcpp::export]]
 XPtr<lpoly_system_type> lpoly_make_system(NumericMatrix cm, NumericMatrix trm){
+
+  if (cm.nrow() != trm.ncol()){
+    Rcpp::Rcout << "lpoly_make_system: dimension mismatch: " << cm.nrow() << " != " << trm.ncol() << endl;
+    exit(-1);
+  }
+
   return XPtr<lpoly_system_type>(new lpoly_system_type(lpoly_evaluator(cm,trm), lpoly_jacobian(cm, trm)), true);
 }
 
