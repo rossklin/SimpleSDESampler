@@ -1,9 +1,10 @@
 #' @param ord array of orders to include in the model
 lpoly_model_spec <- function(d, ord){
-    x <- data.frame(ord)
+    x <- data.frame(0:max(ord))
     s <- expand.grid(rep(x, d))
     s <- s[rowSums(s) %in% ord,]
-    rownames(s) <- paste0("v", seq_len(nrow(s)))
+    rownames(s) <- paste0("T", seq_len(nrow(s)))
+    colnames(s) <- paste0("V", seq_len(d))
     as.matrix(s)
 }
 
