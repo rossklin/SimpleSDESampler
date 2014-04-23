@@ -65,7 +65,7 @@ synthetic.dataset <- function( num.entities = 10
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
 
-    if (!all(at.times %in% seq(0, tmax, length.out = steps + 1))) stop("Times don't match!")
+    if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax)))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 
@@ -122,7 +122,7 @@ synthetic.dataset.quick <- function( num.entities = 10
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
 
-    if (!all(at.times %in% seq(0, tmax, length.out = steps + 1))) stop("Times don't match!")
+    if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax)))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 
