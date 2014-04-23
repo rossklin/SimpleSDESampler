@@ -1,6 +1,7 @@
 \name{lpoly_implicit_sde_averages}
 \alias{lpoly_implicit_sde_averages}
-\title{LPoly System Implicit SDE Simulator: time-wise averages}
+\title{LPoly System Implicit SDE Simulator: time-wise averages
+Samples multiple times from lpoly_implicit_sde and returns the time-wise average}
 \usage{
 lpoly_implicit_sde_averages(nrep, sys, sigma, start, from, to, steps)
 }
@@ -24,5 +25,7 @@ lpoly_implicit_sde_averages(nrep, sys, sigma, start, from, to, steps)
 }
 \description{
 LPoly System Implicit SDE Simulator: time-wise averages
+Samples multiple times from lpoly_implicit_sde and returns
+the time-wise average
 }
 

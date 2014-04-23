@@ -94,7 +94,7 @@ struct r_deriv{
     double *p;
 
     boost::mt19937 gener;
-    boost::normal_distribution<> normal(0,sigma);
+    boost::normal_distribution<> normal(0,sigma*sigma);
     boost::variate_generator<boost::mt19937&,boost::normal_distribution<> > rng(gener, normal);
 
     boost::posix_time::time_duration diff_time = boost::posix_time::microsec_clock::local_time() - boost::posix_time::second_clock::local_time();
@@ -118,14 +118,14 @@ struct r_jacobian{
   r_jacobian(Rcpp::Function j) : J(j){}
 
   void operator()(uvector &q, umatrix &out, double t){
-    out = as_ublas_matrix(J(as_r_vector(q), t));
+    out = as_ublas_matrix(J(as_r_matrix(q), t));
   }
 };
 
 //' General implicit SDE simulator
 //' @param d_det Deterministic component: an R function: (m x n matrix of m states, scalar time) -> m x n matrix of m time derivatives
 //' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
-//' @param jacobian Jacobian of deterministic component: an R function: (n vector state, scalar time) -> n x n matrix df_i / du_j
+//' @param jacobian Jacobian of deterministic component: an R function: (1 x n matrix state, scalar time) -> n x n matrix df_i / du_j
 //' @param sigma Amplitude of noise: scalar
 //' @param start Initial position: n vector
 //' @param from Initial time: scalar

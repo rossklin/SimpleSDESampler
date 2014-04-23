@@ -1,6 +1,7 @@
 \name{lpoly_implicit_sde}
 \alias{lpoly_implicit_sde}
-\title{LPoly System Implicit SDE Simulator}
+\title{LPoly System Implicit SDE Simulator
+Simulates a trajectory to the SDE specified by *sys* and the noise level sigma, starting at the point start and integrating over times [*from*,*to*] on *steps + 1* time points.}
 \usage{
 lpoly_implicit_sde(sys, sigma, start, from, to, steps)
 }
@@ -20,6 +21,9 @@ lpoly_implicit_sde(sys, sigma, start, from, to, steps)
   to) / (steps + 1): integer}
 }
 \description{
-LPoly System Implicit SDE Simulator
+LPoly System Implicit SDE Simulator Simulates a trajectory
+to the SDE specified by *sys* and the noise level sigma,
+starting at the point start and integrating over times
+[*from*,*to*] on *steps + 1* time points.
 }
 

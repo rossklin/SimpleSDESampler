@@ -5,8 +5,8 @@
 synthetic.dataset.quick(num.entities = 10, tmax = 10, steps = 400 * tmax,
   process.noise.sd = 0, observation.noise.sd = 0.01, do.standardise = F,
   initial.generator = function(i) {     rnorm(3) },
-  evaluation.system = examples.lorenz.sys(), at.times = seq(0, tmax,
-  length.out = 1001), save.to = NULL)
+  sys = examples.lpsys.lorenz(), at.times = seq(0, tmax, length.out = 1001),
+  save.to = NULL)
 }
 \arguments{
   \item{num.entities}{Number of sample trajectories to
@@ -29,9 +29,8 @@ synthetic.dataset.quick(num.entities = 10, tmax = 10, steps = 400 * tmax,
   \item{initial.generator}{Function that takes an index and
   generates a starting point for a sample SDE trajectory.}
 
-  \item{evaluation.system}{List containing a coefficient
-  matrix "cm" and a matrix "trm" defining model terms see
-  examples.lorenz.sys()}
+  \item{sys}{lpoly system constructed with
+  lpoly_make_system, see examples.lpsys.lorenz()}
 
   \item{at.times}{Sequence of times to include in the
   output.

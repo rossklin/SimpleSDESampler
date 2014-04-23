@@ -40,10 +40,10 @@
 #' @param observation.noise.sd Standard deviation of synthetic observation noise.
 #' @param do.standardise Standardise the output?
 #' @param initial.generator Function that takes an index and generates a starting point for a sample SDE trajectory.
-#' @param det.deriv Function computing the deterministic component of the time derivative given the state.
-#' @param stoch.deriv Function computing the stochastic coefficient of the time derivative given the state.
-#' @param jacobian Function computing the jacobian of det.deriv with respect to the state variables.
-#' @param at.times Sequence of times to include in the output.
+#' @param det.deriv Function f: (m x n matrix of m states, scalar t time) -> m x n matrix of m state derivs computing the deterministic component of the dynamic given the state.
+#' @param stoch.deriv Function g: (1 x n matrix state, scalar t time) -> n x n matrix of noise weights, computing the stochastic coefficient of the time dynamic the state.
+#' @param jacobian Function J: (1 x n matrix state, scalar t time) -> n x n matrix d fi / d xj computing the jacobian of det.deriv with respect to the state variables.
+#' @param at.times Array of times to include in the output.
 #'
 #' Produces sample trajectories for an SDE on Ito form: 
 #' dx(t) = f(x(t), t) dt + g(x(t), t) e(t) sqrt(dt)
@@ -59,9 +59,9 @@ synthetic.dataset <- function( num.entities = 10
                               , initial.generator = function(i){
                                   rnorm(3)
                               }
-                              , det.deriv = det.lorenz
+                              , det.deriv = examples.gensys.det.lorenz
                               , stoch.deriv = function(x, t) diag(rep(1,3))
-			      , jacobian = jacob.lorenz
+			      , jacobian = examples.gensys.jacob.lorenz
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
 
@@ -70,18 +70,18 @@ synthetic.dataset <- function( num.entities = 10
     dimension = length(initial.generator(0))
 
     df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
-                                                                 , u = solve_implicit_sde( det.deriv
-                                                                       , stoch.deriv
-								       , jacobian
-								       , process.noise.sd
-                                                                       , initial.generator(i)
-                                                                       , 0
-                                                                       , tmax
-                                                                       , steps)), .progress = "text")
+                                                                 , u = solve_implicit_sde( d_det = det.deriv
+                                                                       , d_stoch = stoch.deriv
+								       , jacobian = jacobian
+								       , sigma = process.noise.sd
+                                                                       , start = initial.generator(i)
+                                                                       , from = 0
+                                                                       , to = tmax
+                                                                       , steps = steps)), .progress = "text")
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
     if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
-    tt <- as.time.table(df, "entity", "time", paste0("u.", seq_len(dimension)))
+    tt <- as.time.table(df, "entity", "time")
     if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
     
     if (!is.null(save.to)){
@@ -101,8 +101,7 @@ synthetic.dataset <- function( num.entities = 10
 #' @param observation.noise.sd Standard deviation of synthetic observation noise.
 #' @param do.standardise Standardise the output?
 #' @param initial.generator Function that takes an index and generates a starting point for a sample SDE trajectory.
-#' @param sys lpoly system constructed with lpoly_make_system
-#' see examples.lorenz.sys()
+#' @param sys lpoly system constructed with lpoly_make_system, see examples.lpsys.lorenz()
 #' @param at.times Sequence of times to include in the output.
 #'
 #' Produces sample trajectories for an SDE on Ito form: 
@@ -119,7 +118,7 @@ synthetic.dataset.quick <- function( num.entities = 10
                               , initial.generator = function(i){
                                   rnorm(3)
                               }
-                              , sys = examples.lorenz.sys()
+                              , sys = examples.lpsys.lorenz()
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
 
@@ -129,15 +128,15 @@ synthetic.dataset.quick <- function( num.entities = 10
 
     df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
                                                                  , u = lpoly_implicit_sde( sys = sys
-								       , process.noise.sd
-                                                                       , initial.generator(i)
-                                                                       , 0
-                                                                       , tmax
-                                                                       , steps)), .progress = "text")
+								       , sigma = process.noise.sd
+                                                                       , start = initial.generator(i)
+                                                                       , from = 0
+                                                                       , to = tmax
+                                                                       , steps = steps)), .progress = "text")
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
     if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
-    tt <- as.time.table(df, "entity", "time", paste0("u.", seq_len(dimension)))
+    tt <- as.time.table(df, "entity", "time")
     if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
     
     if (!is.null(save.to)){
