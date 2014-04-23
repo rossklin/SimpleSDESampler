@@ -123,6 +123,7 @@ struct r_jacobian{
 };
 
 //' General implicit SDE simulator
+//'
 //' @param d_det Deterministic component: an R function: (m x n matrix of m states, scalar time) -> m x n matrix of m time derivatives
 //' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
 //' @param jacobian Jacobian of deterministic component: an R function: (1 x n matrix state, scalar time) -> n x n matrix df_i / du_j
@@ -162,6 +163,7 @@ NumericMatrix solve_implicit_sde(Rcpp::Function d_det
 }
 
 //' General implicit SDE simulator: time-wise averages
+//'
 //' @param nrep Number of repetitions to average over: integer
 //' @param d_det Deterministic component: an R function: m x n matrix of m states -> m x n matrix of m time derivatives
 //' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state

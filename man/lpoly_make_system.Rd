@@ -1,7 +1,6 @@
 \name{lpoly_make_system}
 \alias{lpoly_make_system}
-\title{LPoly system constructor
-Returns and XPtr to an lpoly_system_type object}
+\title{LPoly system constructor}
 \usage{
 lpoly_make_system(cm, trm)
 }
@@ -13,7 +12,6 @@ lpoly_make_system(cm, trm)
   different factors in a term)}
 }
 \description{
-LPoly system constructor Returns and XPtr to an
-lpoly_system_type object
+Returns an XPtr to an lpoly_system_type object
 }
 
