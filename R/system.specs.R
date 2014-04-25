@@ -6,10 +6,34 @@
 lpoly_model_spec <- function(d, ord){
     x <- data.frame(0:max(ord))
     s <- expand.grid(rep(x, d))
-    s <- s[rowSums(s) %in% ord,]
+    s <- s[rowSums(abs(s)) %in% ord,]
     rownames(s) <- paste0("T", seq_len(nrow(s)))
     colnames(s) <- paste0("V", seq_len(d))
     as.matrix(s)
+}
+
+#' LPoly random dynamics generator
+#' 
+#' Generates an lpoly_system_type object representing a polynomial dynamic 
+#' with randomly generated coefficients.
+#' @param d Dimension of the system
+#' @param ord Polynomial orders to include: array
+#' @param scale.factor Scaling for normally distributed polynomial coefficients
+#' @param damp.factor Scaling for the damping terms
+#' @param pzero Probability of removing terms from the set of possible terms
+#' @param porder.decay Exponential reduction of coefficients w.r.t. order
+
+lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0.2, pzero = 0, porder.decay = 0.5){
+    next_odd <- function(x) 2 * as.integer(x / 2) + 1
+
+    ms <- lpoly_model_spec(d, ord)
+    ms <- ms[runif(nrow(ms), 0, 1) > pzero,]
+    mspec <- rbind(ms, diag(rep(next_odd(max(ord) + 1), d)))
+    A <- matrix(scale.factor * rnorm(nrow(ms) * d), d, nrow(ms))
+    A <- t(aaply(seq_len(ncol(A)), 1, function(cidx) porder.decay^(sum(ms[cidx,]) - 1) * A[,cidx]))
+    B <- diag(rep(-damp.factor, d))
+    mcm <- cbind(A, B)
+    lsys <- lpoly_make_system(mcm, mspec)
 }
 
 #' LPoly example dynamic: lorenz system
