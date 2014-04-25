@@ -22,6 +22,7 @@ lpoly_model_spec <- function(d, ord){
 #' @param damp.factor Scaling for the damping terms
 #' @param pzero Probability of removing terms from the set of possible terms
 #' @param porder.decay Exponential reduction of coefficients w.r.t. order
+#' @export
 
 lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0.2, pzero = 0, porder.decay = 0.5){
     next_odd <- function(x) 2 * as.integer(x / 2) + 1
