@@ -2,8 +2,8 @@
 \alias{lpoly_random_dynamic}
 \title{LPoly random dynamics generator}
 \usage{
-lpoly_random_dynamic(d, ord = 1:2, scale.factor = 1, damp.factor = 0.2,
-  pzero = 0, porder.decay = 0.5)
+lpoly_random_dynamic(d, ord = 1:2, scale.factor = 1, damp.factor = 0.02,
+  pzero = 0.8, model.size = NULL, porder.decay = 0.5)
 }
 \arguments{
   \item{d}{Dimension of the system}

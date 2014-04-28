@@ -1,13 +1,55 @@
+#' LPoly system builder
+#' @param mcm model coefficient matrix
+#' @param mspec model specification, as created by lpoly_model_spec
+
+lpoly_make_system <- function(mcm, mspec){
+    lsys <- lpoly_make_system_xptr(mcm, mspec)
+    attr(lsys, "mcm") <- mcm
+    attr(lsys, "mspec") <- mspec
+    lsys
+}
+
+#' LPoly system modelfun
+#' @param sys lpoly_system_type object created with lpoly_make_system
+
+lpoly_system_modelfun <- function(sys){
+    function(x) lpoly_model_matrix(sys, x)
+}
+
+#' LPoly system evalfun
+#' @param sys lpoly_system_type object created with lpoly_make_system
+
+lpoly_system_evalfun <- function(sys){
+    function(x) lpoly_model_matrix(sys, x) %*% t(attr(sys, "mcm"))
+}
+
+#' LPoly system jacobian
+#' @param sys lpoly_system_type object created with lpoly_make_system
+
+lpoly_system_jacobian <- function(sys){
+    function(x) lpoly_compute_jacobian(sys, x)
+}
+
+#' LPoly system specs
+#' @param sys lpoly_system_type object created with lpoly_make_system
+
+lpoly_system_specs <- function(sys){
+    res <- NULL
+    res$mcm <- attr(sys, "mcm")
+    res$mspec <- attr(sys, "mspec")
+    res
+}
+
 #' LPoly model spec builder
 #' @param d number of measurement variables
 #' @param ord array of polynomial orders to include in the model
 #' @export
 
 lpoly_model_spec <- function(d, ord){
-    x <- data.frame(0:max(ord))
+    x <- data.frame(unique(c(0:max(ord), ord)))
     s <- expand.grid(rep(x, d))
-    s <- s[rowSums(abs(s)) %in% ord,]
-    rownames(s) <- paste0("T", seq_len(nrow(s)))
+    s <- s[rowSums(abs(s)) %in% abs(ord),,drop=F]
+    rownames(s) <- alply(s, 1, function(v) paste0(v, collapse = "."))
     colnames(s) <- paste0("V", seq_len(d))
     as.matrix(s)
 }
@@ -24,16 +66,38 @@ lpoly_model_spec <- function(d, ord){
 #' @param porder.decay Exponential reduction of coefficients w.r.t. order
 #' @export
 
-lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0.2, pzero = 0, porder.decay = 0.5){
+lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0.02, pzero = 0.8, model.size = NULL, porder.decay = 0.5){
     next_odd <- function(x) 2 * as.integer(x / 2) + 1
 
     ms <- lpoly_model_spec(d, ord)
-    ms <- ms[runif(nrow(ms), 0, 1) > pzero,]
-    mspec <- rbind(ms, diag(rep(next_odd(max(ord) + 1), d)))
+
+    if (!(nrow(ms) > 0)) stop("Can not generate dynamic without model spec!")
+
+    if (is.null(model.size)){
+        use.rows <- 0
+        while (sum(use.rows) < 1) use.rows <- which(runif(nrow(ms), 0, 1) > pzero)
+    }else {
+        use.rows <- sample(seq_len(nrow(ms)), model.size)
+    }
+    
+    ms <- ms[use.rows,,drop=F]
+    msB <- diag(rep(next_odd(max(ord) + 1), d))
+    msC <- diag(rep(-next_odd(max(-ord) + 1), d))
+    mspec <- rbind(ms, msB, msC)
     A <- matrix(scale.factor * rnorm(nrow(ms) * d), d, nrow(ms))
-    A <- t(aaply(seq_len(ncol(A)), 1, function(cidx) porder.decay^(sum(ms[cidx,]) - 1) * A[,cidx]))
+
+    ## Yes, R is wonderfully concistent, that's why we have to write
+    ## special case clauses for different sizes of arrays...
+
+    if (ncol(A) > 1){
+        A <- t(aaply(seq_len(ncol(A)), 1, function(cidx) porder.decay^(sum(abs(ms[cidx,])) - 1) * A[,cidx]))
+    }else{
+        A <- porder.decay^sum(abs(ms)) * A
+    }
+
     B <- diag(rep(-damp.factor, d))
-    mcm <- cbind(A, B)
+    C <- diag(rep(damp.factor, d))
+    mcm <- cbind(A, B, C)
     lsys <- lpoly_make_system(mcm, mspec)
 }
 

@@ -6,16 +6,16 @@
 
 using namespace Rcpp;
 
-// lpoly_make_system
-XPtr<lpoly_system_type> lpoly_make_system(NumericMatrix cm, NumericMatrix trm);
-RcppExport SEXP SimpleSDESampler_lpoly_make_system(SEXP cmSEXP, SEXP trmSEXP) {
+// lpoly_make_system_xptr
+XPtr<lpoly_system_type> lpoly_make_system_xptr(NumericMatrix cm, NumericMatrix trm);
+RcppExport SEXP SimpleSDESampler_lpoly_make_system_xptr(SEXP cmSEXP, SEXP trmSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< NumericMatrix >::type cm(cmSEXP );
         Rcpp::traits::input_parameter< NumericMatrix >::type trm(trmSEXP );
-        XPtr<lpoly_system_type> __result = lpoly_make_system(cm, trm);
+        XPtr<lpoly_system_type> __result = lpoly_make_system_xptr(cm, trm);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -32,6 +32,22 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< XPtr<lpoly_system_type> >::type lps(lpsSEXP );
         Rcpp::traits::input_parameter< NumericMatrix >::type data(dataSEXP );
         NumericMatrix __result = lpoly_model_matrix(lps, data);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// lpoly_compute_jacobian
+NumericMatrix lpoly_compute_jacobian(XPtr<lpoly_system_type> lps, NumericMatrix state);
+RcppExport SEXP SimpleSDESampler_lpoly_compute_jacobian(SEXP lpsSEXP, SEXP stateSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< XPtr<lpoly_system_type> >::type lps(lpsSEXP );
+        Rcpp::traits::input_parameter< NumericMatrix >::type state(stateSEXP );
+        NumericMatrix __result = lpoly_compute_jacobian(lps, state);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
