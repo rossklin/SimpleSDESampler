@@ -18,3 +18,4 @@
 #' \item \code{\link{lpoly_implicit_sde}}
 #' \item \code{\link{lpoly_implicit_sde_averages}}
 #' }
+NULL

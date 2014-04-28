@@ -65,7 +65,7 @@ synthetic.dataset <- function( num.entities = 10
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
 
-    if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax)))) stop("Times don't match!")
+    if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax + 0.5)))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 
@@ -122,7 +122,7 @@ synthetic.dataset.quick <- function( num.entities = 10
                               , at.times = seq(0, tmax, length.out = 1001)
 			      , save.to = NULL){
 
-    if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax)))) stop("Times don't match!")
+    if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax + 0.5)))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 
@@ -138,6 +138,8 @@ synthetic.dataset.quick <- function( num.entities = 10
     if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
     tt <- as.time.table(df, "entity", "time")
     if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
+
+    if (nrow(na.omit(tt)) != nrow(tt)) warning("Non-numeic values introduced, may be caused by too long time steps or by a mismatch between generation and output times")
     
     if (!is.null(save.to)){
       write.csv(df, save.to, row.names = F)
