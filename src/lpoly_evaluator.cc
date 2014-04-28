@@ -133,8 +133,6 @@ void lpoly_jacobian::operator()(uvector &q, umatrix &out, double t){
   umatrix term_derivs = umatrix(terms.nrow(), terms.ncol());
   double x;
 
-  Rcpp::Rcout << "jacobian at " << q[0] << ", " << q[1] << ", " << q[2] << endl;
-
   for (i = 0; i < terms.nrow(); i++){
     for (j = 0; j < terms.ncol(); j++){
       // compute derivative of term i with respect to variable j
@@ -142,8 +140,6 @@ void lpoly_jacobian::operator()(uvector &q, umatrix &out, double t){
       for (k = 0; k < terms.ncol(); k++){
 	term_derivs(i,j) *= pow(terms(i, k), j == k) * pow(q(k), terms(i,k) - (i == k));
       }
-
-      Rcpp::Rcout << "d f" << i << " / d x" << j << " = " << term_derivs(i,j) << endl;
     }
   }
 
