@@ -13,14 +13,22 @@ lpoly_make_system <- function(mcm, mspec){
 #' @param sys lpoly_system_type object created with lpoly_make_system
 
 lpoly_system_modelfun <- function(sys){
-    function(x) lpoly_model_matrix(sys, x)
+    function(x){
+        m <- lpoly_model_matrix(sys, x)
+        colnames(m) <- rownames(attr(sys, "mspec"))
+        m
+    }
 }
 
 #' LPoly system evalfun
 #' @param sys lpoly_system_type object created with lpoly_make_system
 
 lpoly_system_evalfun <- function(sys){
-    function(x) lpoly_model_matrix(sys, x) %*% t(attr(sys, "mcm"))
+    function(x) {
+        m <- lpoly_model_matrix(sys, x) %*% t(attr(sys, "mcm"))
+        colnames(m) <- rownames(attr(sys, "mcm"))
+        m
+    }
 }
 
 #' LPoly system jacobian
@@ -84,6 +92,9 @@ lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0
     msB <- diag(rep(next_odd(max(ord) + 1), d))
     msC <- diag(rep(-next_odd(max(-ord) + 1), d))
     mspec <- rbind(ms, msB, msC)
+    rownames(mspec) <- c(rownames(ms), paste0("neg.feed.", seq_len(d)), paste0("pos.feed.", seq_len(d)))
+    colnames(mspec) <- paste0("u.", seq_len(d))
+    
     A <- matrix(scale.factor * rnorm(nrow(ms) * d), d, nrow(ms))
 
     ## Yes, R is wonderfully concistent, that's why we have to write
@@ -98,6 +109,9 @@ lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0
     B <- diag(rep(-damp.factor, d))
     C <- diag(rep(damp.factor, d))
     mcm <- cbind(A, B, C)
+    rownames(mcm) <- colnames(mspec)
+    colnames(mcm) <- rownames(mspec)
+    
     lsys <- lpoly_make_system(mcm, mspec)
 }
 
