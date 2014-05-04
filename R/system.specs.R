@@ -128,6 +128,11 @@ examples.lpsys.lorenz <- function(s = 16, r = 45.6, b = 5){
 		    1,1,0,
 		    1,0,1,
 		    0,1,1), nrow = 3))
+
+  rownames(trm) <- c("x", "y", "z", "xy", "xz", "yz")
+  colnames(trm) <- c("dx", "dy", "dz")
+  rownames(cm) <- colnames(trm)
+  colnames(cm) <- rownames(trm)
   
   lpoly_make_system(cm, trm)
 }

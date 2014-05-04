@@ -70,14 +70,18 @@ synthetic.dataset <- function( num.entities = 10
     dimension = length(initial.generator(0))
 
     df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
-                                                                 , u = solve_implicit_sde( d_det = det.deriv
+                                                                 , u = tryCatch( solve_implicit_sde( d_det = det.deriv
                                                                        , d_stoch = stoch.deriv
 								       , jacobian = jacobian
 								       , sigma = process.noise.sd
                                                                        , start = initial.generator(i)
                                                                        , from = 0
                                                                        , to = tmax
-                                                                       , steps = steps)), .progress = "text")
+                                                                       , steps = steps)
+                                                                       , error = function(e) matrix(NaN, steps + 1, length(initial.generator(i)))
+                                                                       ))
+                , .progress = "text")
+    
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
     if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
@@ -127,12 +131,15 @@ synthetic.dataset.quick <- function( num.entities = 10
     dimension = length(initial.generator(0))
 
     df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
-                                                                 , u = lpoly_implicit_sde( sys = sys
+                                                                 , u = tryCatch( lpoly_implicit_sde( sys = sys
 								       , sigma = process.noise.sd
                                                                        , start = initial.generator(i)
                                                                        , from = 0
                                                                        , to = tmax
-                                                                       , steps = steps)), .progress = "text")
+                                                                       , steps = steps)
+                                                                       , error = function(e) matrix(NaN, steps + 1, length(initial.generator(i)))
+                                                                       ))
+                , .progress = "text")
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
     if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
