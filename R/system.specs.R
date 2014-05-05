@@ -62,6 +62,55 @@ lpoly_model_spec <- function(d, ord){
     as.matrix(s)
 }
 
+#' LPoly steplength guesser: sampling method
+#' @export
+
+lpoly_guess_steplength_sample <- function(sys, goal = 0.1, freq = 400, h0 = 1){
+    h <- 2 * h0
+    ml2 <- 1
+    steps <- 10
+    f <- lpoly_system_evalfun(sys)
+
+    while(ml2 > goal){
+        h <- h / 2
+        print.noquote(sprintf("Testing h = %e...", h))
+        tt <- synthetic.dataset.quick(sys = sys
+                                      , num.entities = 10
+                                      , steps = steps * as.integer(freq * h + 1)
+                                      , tmax = steps * h
+                                      , at.times = seq(0, steps*h, h)
+                                      , observation.noise.sd = 0
+                                      , process.noise.sd = 0)
+        
+        z <- as.matrix(measurement(step_derivatives(tt)))
+        x <- as.matrix(measurement(tt))
+        y <- f(x)
+        r <- y - z
+        l2e <- sqrt(rowSums(r^2) / rowSums(y^2))
+        l2e[is.na(l2e)] <- 1
+        ml2 <- median(l2e)
+        print.noquote(sprintf("ml2 = %f", ml2))
+    }
+
+    h
+}
+
+#' LPoly steplength guesser: linear method
+#' @export
+
+lpoly_guess_steplength_linear <- function(sys){
+    f <- lpoly_system_evalfun(sys)
+    j <- lpoly_system_jacobian(sys)
+    d <- nrow(lpoly_system_specs(sys)$mcm)
+    n <- 100
+    x <- matrix(rnorm(n * d), n, d)
+    js <- alply(1:n, 1, function(x) j(matrix(x, 1, d)))
+    ls <- laply(js, function(m) eigen(m)$values)
+    ys <- aaply(1:n, 1, function(i) log(2 * f(matrix(x[i,], 1, d)) / min(abs(ls[i,]))^2) / min(abs(ls[i,])))
+    h <- 0.1 * quantile(ys, 0.1)
+    h
+}
+
 #' LPoly random dynamics generator
 #' 
 #' Generates an lpoly_system_type object representing a polynomial dynamic 
@@ -91,8 +140,17 @@ lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0
     ms <- ms[use.rows,,drop=F]
     msB <- diag(rep(next_odd(max(ord) + 1), d))
     msC <- diag(rep(-next_odd(max(-ord) + 1), d))
-    mspec <- rbind(ms, msB, msC)
-    rownames(mspec) <- c(rownames(ms), paste0("neg.feed.", seq_len(d)), paste0("pos.feed.", seq_len(d)))
+    mspec <- ms
+    msnames <- rownames(ms)
+    if (max(ord) > 0) {
+        mspec <- rbind(mspec, msB)
+        msnames <- c(msnames, paste0("neg.feed.", seq_len(d)))
+    }
+    if (min(ord) < 0) {
+        mspec <- rbind(mspec, msC)
+        msnames <- c(msnames, paste0("pos.feed.", seq_len(d)))
+    }
+    rownames(mspec) <- msnames
     colnames(mspec) <- paste0("u.", seq_len(d))
     
     A <- matrix(scale.factor * rnorm(nrow(ms) * d), d, nrow(ms))
@@ -108,7 +166,9 @@ lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0
 
     B <- diag(rep(-damp.factor, d))
     C <- diag(rep(damp.factor, d))
-    mcm <- cbind(A, B, C)
+    mcm <- A
+    if (max(ord) > 0) mcm <- cbind(mcm, B)
+    if (min(ord) < 0) mcm <- cbind(mcm, C)
     rownames(mcm) <- colnames(mspec)
     colnames(mcm) <- rownames(mspec)
     

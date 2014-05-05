@@ -63,24 +63,34 @@ synthetic.dataset <- function( num.entities = 10
                               , stoch.deriv = function(x, t) diag(rep(1,3))
 			      , jacobian = examples.gensys.jacob.lorenz
                               , at.times = seq(0, tmax, length.out = 1001)
-			      , save.to = NULL){
+			      , save.to = NULL
+                              , retries = 10){
 
     if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax + 0.5)))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 
-    df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
-                                                                 , u = tryCatch( solve_implicit_sde( d_det = det.deriv
-                                                                       , d_stoch = stoch.deriv
-								       , jacobian = jacobian
-								       , sigma = process.noise.sd
-                                                                       , start = initial.generator(i)
-                                                                       , from = 0
-                                                                       , to = tmax
-                                                                       , steps = steps)
-                                                                       , error = function(e) matrix(NaN, steps + 1, length(initial.generator(i)))
-                                                                       ))
-                , .progress = "text")
+    df <- adply(seq_len(num.entities), 1, function(i){
+        rt <- 0
+
+        while (rt < retries){
+            u = tryCatch( solve_implicit_sde( d_det = det.deriv
+                , d_stoch = stoch.deriv
+                , jacobian = jacobian
+                , sigma = process.noise.sd
+                , start = initial.generator(i)
+                , from = 0
+                , to = tmax
+                , steps = steps)
+                , error = function(e) NULL
+                )
+            rt <- if (is.null(u)) rt + 1 else retries
+        }
+
+        if (is.null(u)) u <- matrix(NaN, steps + 1, length(initial.generator(i)))
+        
+        data.frame( time = seq(0, tmax, length.out = steps + 1), u = u)
+    }, .progress = "text")
     
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
@@ -89,7 +99,7 @@ synthetic.dataset <- function( num.entities = 10
     if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
     
     if (!is.null(save.to)){
-      write.csv(df, save.to, row.names = F)
+      write.csv(tt, save.to, row.names = F)
     }
     tt
 }
@@ -114,32 +124,43 @@ synthetic.dataset <- function( num.entities = 10
 #' @export
 
 synthetic.dataset.quick <- function( num.entities = 10
-                              , tmax = 10
-                              , steps = 400 * tmax
-                              , process.noise.sd = 0
-                              , observation.noise.sd = .01
-                              , do.standardise = F
-                              , initial.generator = function(i){
-                                  rnorm(3)
-                              }
-                              , sys = examples.lpsys.lorenz()
-                              , at.times = seq(0, tmax, length.out = 1001)
-			      , save.to = NULL){
+                                    , tmax = 10
+                                    , steps = 400 * tmax
+                                    , process.noise.sd = 0
+                                    , observation.noise.sd = .01
+                                    , do.standardise = F
+                                    , initial.generator = function(i){
+                                        rnorm(3)
+                                    }
+                                    , sys = examples.lpsys.lorenz()
+                                    , at.times = seq(0, tmax, length.out = 1001)
+                                    , save.to = NULL
+                                    , retries = 10){
 
     if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax + 0.5)))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 
-    df <- adply(seq_len(num.entities), 1, function(i) data.frame( time = seq(0, tmax, length.out = steps + 1)
-                                                                 , u = tryCatch( lpoly_implicit_sde( sys = sys
-								       , sigma = process.noise.sd
-                                                                       , start = initial.generator(i)
-                                                                       , from = 0
-                                                                       , to = tmax
-                                                                       , steps = steps)
-                                                                       , error = function(e) matrix(NaN, steps + 1, length(initial.generator(i)))
-                                                                       ))
-                , .progress = "text")
+    df <- adply(seq_len(num.entities), 1, function(i){
+        rt <- 0
+
+        while (rt < retries){
+            u = tryCatch( lpoly_implicit_sde(sys = sys
+                , sigma = process.noise.sd
+                , start = initial.generator(i)
+                , from = 0
+                , to = tmax
+                , steps = steps)
+                , error = function(e) NULL
+                )
+            rt <- if (is.null(u)) rt + 1 else retries
+        }
+
+        if (is.null(u)) u <- matrix(NaN, steps + 1, length(initial.generator(i)))
+        
+        data.frame( time = seq(0, tmax, length.out = steps + 1), u = u)
+    }, .progress = "text")
+    
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
     if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
@@ -149,7 +170,7 @@ synthetic.dataset.quick <- function( num.entities = 10
     if (nrow(na.omit(tt)) != nrow(tt)) warning("Non-numeic values introduced, may be caused by too long time steps or by a mismatch between generation and output times")
     
     if (!is.null(save.to)){
-      write.csv(df, save.to, row.names = F)
+      write.csv(tt, save.to, row.names = F)
     }
     tt
 }
