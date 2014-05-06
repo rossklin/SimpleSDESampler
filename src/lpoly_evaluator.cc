@@ -124,6 +124,13 @@ void lpoly_evaluator::build_noise(int n, int d, double sigma){
     p[i] = rng();
   }
 }
+
+uvector lpoly_evaluator::evalfun(uvector query){
+  NumericMatrix state(1, query.size(), query.begin());
+  NumericMatrix state_model = build(state);
+  uvector state_vector = as_ublas_vector(NumericVector(state_model.begin(), state_model.end()));
+  return prod(coef_matrix, state_vector);
+}
  
 lpoly_jacobian::lpoly_jacobian(NumericMatrix cm, NumericMatrix trm) : terms(trm), coef_matrix(as_ublas_matrix(cm)){}
 
@@ -138,7 +145,7 @@ void lpoly_jacobian::operator()(uvector &q, umatrix &out, double t){
       // compute derivative of term i with respect to variable j
       term_derivs(i,j) = 1;
       for (k = 0; k < terms.ncol(); k++){
-	term_derivs(i,j) *= pow(terms(i, k), j == k) * pow(q(k), terms(i,k) - (i == k));
+	term_derivs(i,j) *= pow(terms(i, k), j == k) * pow(q(k), terms(i,k) - (j == k));
       }
     }
   }
@@ -270,3 +277,41 @@ NumericMatrix lpoly_implicit_sde_averages( int nrep
 
   return result;
 } 
+
+
+//' LPoly System Implicit SDE Simulator using NLOPT
+//'
+//' Simulates a trajectory to the SDE specified by *sys* and the noise level sigma, starting at the point start and integrating over times [*from*,*to*] on *steps + 1* time points.
+//' @param sys lpoly_system_type XPtr object created with lpoly_make_system
+//' @param sigma Amplitude of noise: scalar
+//' @param start Initial position: n vector
+//' @param from Initial time: scalar
+//' @param to Final time: scalar
+//' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
+//' @export
+// [[Rcpp::export]]
+NumericMatrix lpoly_implicit_sde_nlopt(XPtr<lpoly_system_type> sys
+				 , double sigma
+				 , NumericVector start
+				 , double from, double to, int steps ) {
+
+  const double dt = (to - from)/steps;
+  vector<double> state = as<vector<double> >(start);
+  NumericMatrix result(steps+1, start.size());
+
+  nlopt_stepper stepper(sys, dt, start.size(), sigma, steps);
+
+  for(int j = 0; j < start.size(); ++j){
+    result(0, j) = state[j];
+  }
+
+  for(int i = 1; i <= steps; ++i) {
+    stepper.do_step(state, i*dt);
+    for(int j = 0; j < start.size(); ++j){
+      result(i, j) = state[j];
+    }
+  }
+
+  return result;
+}
+

@@ -132,7 +132,7 @@ synthetic.dataset.quick <- function( num.entities = 10
                                     , initial.generator = function(i){
                                         rnorm(3)
                                     }
-                                    , sys = examples.lpsys.lorenz()
+                                    , sys = lpoly_examples_lorenz()
                                     , at.times = seq(0, tmax, length.out = 1001)
                                     , save.to = NULL
                                     , retries = 10){

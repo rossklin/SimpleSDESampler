@@ -178,7 +178,7 @@ lpoly_random_dynamic <- function(d, ord = 1:2, scale.factor = 1, damp.factor = 0
 #' LPoly example dynamic: lorenz system
 #' @export
 
-examples.lpsys.lorenz <- function(s = 16, r = 45.6, b = 5){
+lpoly_examples_lorenz <- function(s = 16, r = 45.6, b = 5){
   cm = t(matrix(c( -s, s, 0, 0, 0, 0,
        	  	      r, -1, 0, 0, -20, 0,
 		      0, 0, -b, 5, 0, 0), ncol = 3))
