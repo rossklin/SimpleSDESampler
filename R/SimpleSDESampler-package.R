@@ -4,6 +4,7 @@
 #' @docType package
 #' 
 #' @useDynLib SimpleSDESampler
+#' @useDynLib nlopt
 #' @exportPattern "^[[:alpha:]]+"
 #' @importFrom Rcpp evalCpp
 #' @import plyr 
