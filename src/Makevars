@@ -7,4 +7,5 @@ all: $(SHLIB)
 $(SHLIB): mylibs
 
 mylibs:
-	(cd ../nlopt-2.4.1; make)
+	(cd ../nlopt-2.4.1; ./configure --prefix=$(R_PACKAGE_SOURCE); make; make install)
+
