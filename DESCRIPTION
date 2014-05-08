@@ -11,4 +11,4 @@ Imports:
     Rcpp (>= 0.11.0),
     plyr,
     timetablr
-LinkingTo: Rcpp, nlopt
+LinkingTo: Rcpp
