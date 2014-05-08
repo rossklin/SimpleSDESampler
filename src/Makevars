@@ -1,5 +1,5 @@
 PKG_CPPFLAGS += -I.
-PKG_LIBS += -L../inst/libs -lnlopt
+PKG_LIBS += -L../inst/lib -lnlopt
 
 .PHONY: all mylibs
 
