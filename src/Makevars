@@ -1,4 +1,11 @@
-PKG_CPPFLAGS += -I. -I../inst/include
-PKG_LIBS += -L../inst/lib -lnlopt
+PKG_CPPFLAGS += -I.
+PKG_LIBS += -lnlopt
 
+.PHONY: all mylibs
+
+all: $(SHLIB)
+$(SHLIB): mylibs
+
+mylibs:
+	(cd ../nlopt-2.4.1; ./configure --prefix=$PWD; make; make install)
 
