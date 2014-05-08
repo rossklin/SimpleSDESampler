@@ -1,2 +1,10 @@
 PKG_CPPFLAGS += -I. -L.
 PKG_LIBS += -lnlopt
+
+.PHONY: all mylibs
+
+all: $(SHLIB)
+$(SHLIB): mylibs
+
+mylibs:
+	(cd nlopt-2.4.1; make)
