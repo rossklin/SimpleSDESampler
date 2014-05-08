@@ -15,7 +15,7 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 
-#include <nlopt.hpp>
+#include "nlopt.hpp"
 
 #include <Rcpp.h>
 

@@ -7,3 +7,5 @@ make
 make install
 cp include/* ../inst/include/
 cp -r lib ../inst/lib
+ls -R ../inst
+cd ../src
