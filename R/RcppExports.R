@@ -27,35 +27,6 @@ lpoly_compute_jacobian <- function(lps, state) {
     .Call('SimpleSDESampler_lpoly_compute_jacobian', PACKAGE = 'SimpleSDESampler', lps, state)
 }
 
-#' LPoly System Implicit SDE Simulator
-#'
-#' Simulates a trajectory to the SDE specified by *sys* and the noise level sigma, starting at the point start and integrating over times [*from*,*to*] on *steps + 1* time points.
-#' @param sys lpoly_system_type XPtr object created with lpoly_make_system
-#' @param sigma Amplitude of noise: scalar
-#' @param start Initial position: n vector
-#' @param from Initial time: scalar
-#' @param to Final time: scalar
-#' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
-#' @export
-lpoly_implicit_sde <- function(sys, sigma, start, from, to, steps) {
-    .Call('SimpleSDESampler_lpoly_implicit_sde', PACKAGE = 'SimpleSDESampler', sys, sigma, start, from, to, steps)
-}
-
-#' LPoly System Implicit SDE Simulator: time-wise averages
-#'
-#' Samples multiple times from lpoly_implicit_sde and returns the time-wise average
-#' @param nrep Number of repetitions to average over: integer
-#' @param sys lpoly_system_type XPtr object created with lpoly_make_system
-#' @param sigma Amplitude of noise: scalar
-#' @param start Initial position: n vector
-#' @param from Initial time: scalar
-#' @param to Final time: scalar
-#' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
-#' @export
-lpoly_implicit_sde_averages <- function(nrep, sys, sigma, start, from, to, steps) {
-    .Call('SimpleSDESampler_lpoly_implicit_sde_averages', PACKAGE = 'SimpleSDESampler', nrep, sys, sigma, start, from, to, steps)
-}
-
 #' LPoly System Implicit SDE Simulator using NLOPT
 #'
 #' Simulates a trajectory to the SDE specified by *sys* and the noise level sigma, starting at the point start and integrating over times [*from*,*to*] on *steps + 1* time points.
@@ -66,10 +37,40 @@ lpoly_implicit_sde_averages <- function(nrep, sys, sigma, start, from, to, steps
 #' @param to Final time: scalar
 #' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
 #' @export
-lpoly_implicit_sde_nlopt <- function(sys, sigma, start, from, to, steps) {
-    .Call('SimpleSDESampler_lpoly_implicit_sde_nlopt', PACKAGE = 'SimpleSDESampler', sys, sigma, start, from, to, steps)
+lpoly_sde <- function(sys, sigma, start, from, to, steps, x_tol = 0, algorithm = "TNEWTON") {
+    .Call('SimpleSDESampler_lpoly_sde', PACKAGE = 'SimpleSDESampler', sys, sigma, start, from, to, steps, x_tol, algorithm)
 }
 
+#' LPoly System Implicit SDE Simulator using NLOPT, with precached noise data
+#'
+#' Simulates a trajectory to the SDE specified by *sys* and the noise level sigma, starting at the point start and integrating over times [*from*,*to*] on *steps + 1* time points.
+#' @param sys lpoly_system_type XPtr object created with lpoly_make_system
+#' @param noise Noise buffer (brownian motion normalised steps ~N(0,sigma^2))
+#' @param start Initial position: n vector
+#' @param from Initial time: scalar
+#' @param to Final time: scalar
+#' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
+#' @export
+lpoly_sde_precached <- function(sys, noise, start, from, to, steps, x_tol = 0, algorithm = "TNEWTON") {
+    .Call('SimpleSDESampler_lpoly_sde_precached', PACKAGE = 'SimpleSDESampler', sys, noise, start, from, to, steps, x_tol, algorithm)
+}
+
+#' LPoly System Implicit SDE Simulator: time-wise averages
+#'
+#' Samples multiple times from lpoly_sde and returns the time-wise average
+#' @param nrep Number of repetitions to average over: integer
+#' @param sys lpoly_system_type XPtr object created with lpoly_make_system
+#' @param sigma Amplitude of noise: scalar
+#' @param start Initial position: n vector
+#' @param from Initial time: scalar
+#' @param to Final time: scalar
+#' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
+#' @export
+lpoly_sde_averages <- function(nrep, sys, sigma, start, from, to, steps) {
+    .Call('SimpleSDESampler_lpoly_sde_averages', PACKAGE = 'SimpleSDESampler', nrep, sys, sigma, start, from, to, steps)
+}
+
+#' Simulates an SDE explicitly (derivative free)
 #' @export
 solve_general_sde <- function(d_det, d_stoch, start, from, to, steps) {
     .Call('SimpleSDESampler_solve_general_sde', PACKAGE = 'SimpleSDESampler', d_det, d_stoch, start, from, to, steps)

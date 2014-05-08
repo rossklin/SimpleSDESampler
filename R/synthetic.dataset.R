@@ -99,7 +99,7 @@ synthetic.dataset <- function( num.entities = 10
     if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
     
     if (!is.null(save.to)){
-      write.csv(tt, save.to, row.names = F)
+        write.csv(tt, save.to, row.names = F)
     }
     tt
 }
@@ -111,7 +111,7 @@ synthetic.dataset <- function( num.entities = 10
 #' @param num.entities Number of sample trajectories to generate.
 #' @param tmax End of the time interval to integrate the SDE over.
 #' @param steps Number of time steps to use in the integration.
-#' @param process.noise.sd Standard deviation of the brownian motion component.
+#' @param process.noise.sd Standard deviation of the brownian motion component (set to negative of value to precache noise buf in R, this can be useful if you want deterministic behaviour with respect to a random seed in R).
 #' @param observation.noise.sd Standard deviation of synthetic observation noise.
 #' @param do.standardise Standardise the output?
 #' @param initial.generator Function that takes an index and generates a starting point for a sample SDE trajectory.
@@ -124,20 +124,22 @@ synthetic.dataset <- function( num.entities = 10
 #' @export
 
 synthetic.dataset.quick <- function( num.entities = 10
-                                    , tmax = 10
-                                    , steps = 400 * tmax
+                                    , tmax = 2
+                                    , steps = 100 * tmax
                                     , process.noise.sd = 0
-                                    , observation.noise.sd = .01
+                                    , observation.noise.sd = 0
                                     , do.standardise = F
                                     , initial.generator = function(i){
                                         rnorm(3)
                                     }
                                     , sys = lpoly_examples_lorenz()
-                                    , at.times = seq(0, tmax, length.out = 1001)
+                                    , at.times = NULL
                                     , save.to = NULL
-                                    , retries = 10){
+                                    , retries = 10
+                                    , .progress = "text"
+                                    , ...){
 
-    if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax + 0.5)))) stop("Times don't match!")
+    if (!is.null(at.times) & !isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax + 0.5)))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 
@@ -145,21 +147,35 @@ synthetic.dataset.quick <- function( num.entities = 10
         rt <- 0
 
         while (rt < retries){
-            u = tryCatch( lpoly_implicit_sde(sys = sys
-                , sigma = process.noise.sd
-                , start = initial.generator(i)
-                , from = 0
-                , to = tmax
-                , steps = steps)
-                , error = function(e) NULL
-                )
+            if (process.noise.sd < 0){
+                noise <- matrix(rnorm(dimension * (steps + 2), 0, process.noise.sd^2), steps + 2, dimension)
+                u = tryCatch( lpoly_sde_precached(sys = sys
+                    , noise = noise
+                    , start = initial.generator(i)
+                    , from = 0
+                    , to = tmax
+                    , steps = steps
+                    , ...)
+                    , error = function(e) NULL
+                    )
+            }else{
+                u = tryCatch( lpoly_sde(sys = sys
+                    , sigma = process.noise.sd
+                    , start = initial.generator(i)
+                    , from = 0
+                    , to = tmax
+                    , steps = steps
+                    , ...)
+                    , error = function(e) NULL
+                    )
+            }
             rt <- if (is.null(u)) rt + 1 else retries
         }
 
         if (is.null(u)) u <- matrix(NaN, steps + 1, length(initial.generator(i)))
         
         data.frame( time = seq(0, tmax, length.out = steps + 1), u = u)
-    }, .progress = "text")
+    }, .progress = .progress)
     
     colnames(df)[[1]] <- "entity"
     df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
@@ -170,7 +186,7 @@ synthetic.dataset.quick <- function( num.entities = 10
     if (nrow(na.omit(tt)) != nrow(tt)) warning("Non-numeic values introduced, may be caused by too long time steps or by a mismatch between generation and output times")
     
     if (!is.null(save.to)){
-      write.csv(tt, save.to, row.names = F)
+        write.csv(tt, save.to, row.names = F)
     }
     tt
 }

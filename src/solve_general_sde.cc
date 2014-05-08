@@ -69,6 +69,7 @@ struct r_compute{
   
 };
 
+//' Simulates an SDE explicitly (derivative free)
 //' @export
 // [[Rcpp::export]]
 NumericMatrix solve_general_sde(Rcpp::Function d_det

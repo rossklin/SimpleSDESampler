@@ -46,6 +46,7 @@ public:
   void operator()(uvector &query, uvector &out, double t);
   uvector noise(double t);
   void build_noise(int n, int d, double sigma);
+  void set_noise(umatrix m);
   uvector evalfun(uvector q);
 };
 
@@ -76,8 +77,10 @@ struct nlopt_stepper{
   nlopt_stepper_data data;
   nlopt::opt *optimizer;
 
-  nlopt_stepper(lpoly_system_type *sys, double h, int dim, double sigma, int steps);
+  nlopt_stepper(lpoly_system_type *sys, double h, int dim, double sigma, int steps, double xtol = 0, const char* algorithm = "TNEWTON");
+  nlopt_stepper(lpoly_system_type *sys, double h, int dim, umatrix noise, double xtol = 0, const char* algorithm = "TNEWTON");
   ~nlopt_stepper();
+  void setup(lpoly_system_type *sys, double h, int dim, double xtol, const char* algorithm);
   void do_step(std::vector<double> &x, double t);
 };
 

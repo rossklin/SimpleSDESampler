@@ -54,9 +54,9 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
-// lpoly_implicit_sde
-NumericMatrix lpoly_implicit_sde(XPtr<lpoly_system_type> sys, double sigma, NumericVector start, double from, double to, int steps);
-RcppExport SEXP SimpleSDESampler_lpoly_implicit_sde(SEXP sysSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
+// lpoly_sde
+NumericMatrix lpoly_sde(XPtr<lpoly_system_type> sys, double sigma, NumericVector start, double from, double to, int steps, double x_tol = 0, const char* algorithm = "TNEWTON");
+RcppExport SEXP SimpleSDESampler_lpoly_sde(SEXP sysSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP, SEXP x_tolSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -67,16 +67,40 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< double >::type from(fromSEXP );
         Rcpp::traits::input_parameter< double >::type to(toSEXP );
         Rcpp::traits::input_parameter< int >::type steps(stepsSEXP );
-        NumericMatrix __result = lpoly_implicit_sde(sys, sigma, start, from, to, steps);
+        Rcpp::traits::input_parameter< double >::type x_tol(x_tolSEXP );
+        Rcpp::traits::input_parameter< const char* >::type algorithm(algorithmSEXP );
+        NumericMatrix __result = lpoly_sde(sys, sigma, start, from, to, steps, x_tol, algorithm);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
     return __sexp_result;
 END_RCPP
 }
-// lpoly_implicit_sde_averages
-NumericMatrix lpoly_implicit_sde_averages(int nrep, XPtr<lpoly_system_type> sys, double sigma, NumericVector start, double from, double to, int steps);
-RcppExport SEXP SimpleSDESampler_lpoly_implicit_sde_averages(SEXP nrepSEXP, SEXP sysSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
+// lpoly_sde_precached
+NumericMatrix lpoly_sde_precached(XPtr<lpoly_system_type> sys, NumericMatrix noise, NumericVector start, double from, double to, int steps, double x_tol = 0, const char* algorithm = "TNEWTON");
+RcppExport SEXP SimpleSDESampler_lpoly_sde_precached(SEXP sysSEXP, SEXP noiseSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP, SEXP x_tolSEXP, SEXP algorithmSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< XPtr<lpoly_system_type> >::type sys(sysSEXP );
+        Rcpp::traits::input_parameter< NumericMatrix >::type noise(noiseSEXP );
+        Rcpp::traits::input_parameter< NumericVector >::type start(startSEXP );
+        Rcpp::traits::input_parameter< double >::type from(fromSEXP );
+        Rcpp::traits::input_parameter< double >::type to(toSEXP );
+        Rcpp::traits::input_parameter< int >::type steps(stepsSEXP );
+        Rcpp::traits::input_parameter< double >::type x_tol(x_tolSEXP );
+        Rcpp::traits::input_parameter< const char* >::type algorithm(algorithmSEXP );
+        NumericMatrix __result = lpoly_sde_precached(sys, noise, start, from, to, steps, x_tol, algorithm);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// lpoly_sde_averages
+NumericMatrix lpoly_sde_averages(int nrep, XPtr<lpoly_system_type> sys, double sigma, NumericVector start, double from, double to, int steps);
+RcppExport SEXP SimpleSDESampler_lpoly_sde_averages(SEXP nrepSEXP, SEXP sysSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -88,27 +112,7 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< double >::type from(fromSEXP );
         Rcpp::traits::input_parameter< double >::type to(toSEXP );
         Rcpp::traits::input_parameter< int >::type steps(stepsSEXP );
-        NumericMatrix __result = lpoly_implicit_sde_averages(nrep, sys, sigma, start, from, to, steps);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
-END_RCPP
-}
-// lpoly_implicit_sde_nlopt
-NumericMatrix lpoly_implicit_sde_nlopt(XPtr<lpoly_system_type> sys, double sigma, NumericVector start, double from, double to, int steps);
-RcppExport SEXP SimpleSDESampler_lpoly_implicit_sde_nlopt(SEXP sysSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
-BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< XPtr<lpoly_system_type> >::type sys(sysSEXP );
-        Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP );
-        Rcpp::traits::input_parameter< NumericVector >::type start(startSEXP );
-        Rcpp::traits::input_parameter< double >::type from(fromSEXP );
-        Rcpp::traits::input_parameter< double >::type to(toSEXP );
-        Rcpp::traits::input_parameter< int >::type steps(stepsSEXP );
-        NumericMatrix __result = lpoly_implicit_sde_nlopt(sys, sigma, start, from, to, steps);
+        NumericMatrix __result = lpoly_sde_averages(nrep, sys, sigma, start, from, to, steps);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

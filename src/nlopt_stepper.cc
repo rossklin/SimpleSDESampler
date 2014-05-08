@@ -17,23 +17,44 @@ uvector nlopt_stepper_data::noisefun(double t){
   return sys -> first.noise(t);
 }
 
-nlopt_stepper::nlopt_stepper(lpoly_system_type *sys, double h, int dim, double sigma, int steps){
-  data.sys = sys;
-  data.dim = dim;
-  data.h = h;
-
+nlopt_stepper::nlopt_stepper(lpoly_system_type *sys, double h, int dim, double sigma, int steps, double xtol, const char* algorithm){
+  setup(sys, h, dim, xtol, algorithm);
   data.sys -> first.build_noise(steps + 2, data.dim, sigma);
-  data.sys -> first.set_h(h);
+}
 
-  optimizer = new nlopt::opt(nlopt::LD_TNEWTON, data.dim);
-  optimizer -> set_min_objective(nlopt_objective, &data);
-  //optimizer -> set_ftol_rel(0.01);
-  //optimizer -> set_stopval(0.0005);
-  optimizer -> set_xtol_abs(0.001);
+nlopt_stepper::nlopt_stepper(lpoly_system_type *sys, double h, int dim, umatrix noise, double xtol, const char* algorithm){
+  setup(sys, h, dim, xtol, algorithm);
+  sys -> first.set_noise(noise);
 }
 
 nlopt_stepper::~nlopt_stepper(){
   delete optimizer;
+}
+
+void nlopt_stepper::setup(lpoly_system_type *sys, double h, int dim, double xtol, const char* algorithm){
+  data.sys = sys;
+  data.dim = dim;
+  data.h = h;
+
+  data.sys -> first.set_h(h);
+
+  if (!strcmp(algorithm, "TNEWTON")){
+    optimizer = new nlopt::opt(nlopt::LD_TNEWTON, data.dim);
+  }else if (!strcmp(algorithm, "TNEWTON_RESTART")){
+    optimizer = new nlopt::opt(nlopt::LD_TNEWTON_RESTART, data.dim);
+  }else if (!strcmp(algorithm, "LBFGS")){
+    optimizer = new nlopt::opt(nlopt::LD_LBFGS, data.dim);
+  }else{
+    Rcpp::Rcout << "nlopt_stepper: invalid algorithm: " << algorithm << endl;
+    exit(-1);
+  }
+
+  optimizer -> set_min_objective(nlopt_objective, &data);
+  //optimizer -> set_ftol_abs(xtol);
+  //optimizer -> set_ftol_rel(0.01);
+  optimizer -> set_stopval(xtol);
+  //optimizer -> set_xtol_abs(xtol);
+  
 }
 
 void nlopt_stepper::do_step(std::vector<double> &x, double t){
