@@ -13,5 +13,5 @@ file.copy(xfiles, dest, overwrite = TRUE)
 if(file.exists("symbols.rds"))
     file.copy("symbols.rds", dest, overwrite = TRUE)
 
-print(sprintf("contents of %s:", dest)
+print(sprintf("contents of %s:", dest))
 print(list.files(dest))
