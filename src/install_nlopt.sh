@@ -1,5 +1,7 @@
 #!/bin/bash
-cd ../nlopt-2.4.1
+cd ..
+tar xvzf nlopt-2.4.1.tar.gz
+cd nlopt-2.4.1
 ./configure --prefix=$PWD
 make
 make install
