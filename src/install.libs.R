@@ -6,3 +6,7 @@ file.copy(files, dest, overwrite = TRUE)
 file.copy(xfiles, dest, overwrite = TRUE)
 if(file.exists("symbols.rds"))
     file.copy("symbols.rds", dest, overwrite = TRUE)
+
+print("copied:")
+for(s in c(files, xfiles)) print(sprintf("%s, ", s))
+print(sprintf("to: %s\n", dest))
