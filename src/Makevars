@@ -1,2 +1,2 @@
-PKG_CPPFLAGS += -I.
+PKG_CPPFLAGS += -I. -L.
 PKG_LIBS += -lnlopt

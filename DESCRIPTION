@@ -12,3 +12,4 @@ Imports:
     plyr,
     timetablr
 LinkingTo: Rcpp
+SystemRequirements: nlopt >= 2.4
