@@ -1,10 +1,13 @@
-\name{lpoly_implicit_sde}
-\alias{lpoly_implicit_sde}
-\title{LPoly System Implicit SDE Simulator}
+\name{lpoly_sde_averages}
+\alias{lpoly_sde_averages}
+\title{LPoly System Implicit SDE Simulator: time-wise averages}
 \usage{
-lpoly_implicit_sde(sys, sigma, start, from, to, steps)
+lpoly_sde_averages(nrep, sys, sigma, start, from, to, steps)
 }
 \arguments{
+  \item{nrep}{Number of repetitions to average over:
+  integer}
+
   \item{sys}{lpoly_system_type XPtr object created with
   lpoly_make_system}
 
@@ -20,9 +23,7 @@ lpoly_implicit_sde(sys, sigma, start, from, to, steps)
   to) / (steps + 1): integer}
 }
 \description{
-Simulates a trajectory to the SDE specified by *sys* and
-the noise level sigma, starting at the point start and
-integrating over times [*from*,*to*] on *steps + 1* time
-points.
+Samples multiple times from lpoly_sde and returns the
+time-wise average
 }
 

@@ -2,11 +2,11 @@
 \alias{synthetic.dataset.quick}
 \title{Generate Synthetic Dataset: optimised for Laurent polynomial systems}
 \usage{
-synthetic.dataset.quick(num.entities = 10, tmax = 10, steps = 400 * tmax,
-  process.noise.sd = 0, observation.noise.sd = 0.01, do.standardise = F,
+synthetic.dataset.quick(num.entities = 10, tmax = 2, steps = 100 * tmax,
+  process.noise.sd = 0, observation.noise.sd = 0, do.standardise = F,
   initial.generator = function(i) {     rnorm(3) },
-  sys = examples.lpsys.lorenz(), at.times = seq(0, tmax, length.out = 1001),
-  save.to = NULL)
+  sys = lpoly_examples_lorenz(), at.times = NULL, save.to = NULL,
+  retries = 10, .progress = "text", ...)
 }
 \arguments{
   \item{num.entities}{Number of sample trajectories to
@@ -19,7 +19,10 @@ synthetic.dataset.quick(num.entities = 10, tmax = 10, steps = 400 * tmax,
   integration.}
 
   \item{process.noise.sd}{Standard deviation of the
-  brownian motion component.}
+  brownian motion component (set to negative of value to
+  precache noise buf in R, this can be useful if you want
+  deterministic behaviour with respect to a random seed in
+  R).}
 
   \item{observation.noise.sd}{Standard deviation of
   synthetic observation noise.}

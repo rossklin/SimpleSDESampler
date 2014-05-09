@@ -7,7 +7,8 @@ synthetic.dataset(num.entities = 10, tmax = 10, steps = 400 * tmax,
   initial.generator = function(i) {     rnorm(3) },
   det.deriv = examples.gensys.det.lorenz, stoch.deriv = function(x, t)
   diag(rep(1, 3)), jacobian = examples.gensys.jacob.lorenz,
-  at.times = seq(0, tmax, length.out = 1001), save.to = NULL)
+  at.times = seq(0, tmax, length.out = 1001), save.to = NULL,
+  retries = 10)
 }
 \arguments{
   \item{num.entities}{Number of sample trajectories to

@@ -19,5 +19,6 @@
 #' }
 
 .onLoad <- function(libloc, pkgname){
-    library.dynam("SimpleSDESampler", pkgname, libloc, DLLpath = libloc)
+    dyn.load(file.path(libloc, pkgname, "libs", paste0("libnlopt",.Platform$dynlib.ext)))
+    library.dynam("SimpleSDESampler", pkgname, libloc)
 }
