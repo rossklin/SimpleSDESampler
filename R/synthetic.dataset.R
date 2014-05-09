@@ -63,6 +63,7 @@ synthetic.dataset <- function( num.entities = 10
                               , stoch.deriv = function(x, t) diag(rep(1,3))
 			      , jacobian = examples.gensys.jacob.lorenz
                               , at.times = seq(0, tmax, length.out = 1001)
+                              , include.derivs = FALSE
 			      , save.to = NULL
                               , retries = 10){
 
@@ -88,8 +89,14 @@ synthetic.dataset <- function( num.entities = 10
         }
 
         if (is.null(u)) u <- matrix(NaN, steps + 1, length(initial.generator(i)))
-        
-        data.frame( time = seq(0, tmax, length.out = steps + 1), u = u)
+
+        if (include.derivatives){
+            res <- data.frame( time = seq(0, tmax, length.out = steps + 1), u = u, dudt = det.deriv(u, seq(0, tmax, length.out = steps + 1)))
+            colnames(res) <- c("time", paste0("u.", seq_len(dimension)), paste0("du.", seq_len(dimension)))
+        }else{
+            res <- data.frame( time = seq(0, tmax, length.out = steps + 1), u = u)
+        }
+        res
     }, .progress = "text")
     
     colnames(df)[[1]] <- "entity"
@@ -134,6 +141,7 @@ synthetic.dataset.quick <- function( num.entities = 10
                                     }
                                     , sys = lpoly_examples_lorenz()
                                     , at.times = NULL
+                                    , include.derivatives = FALSE
                                     , save.to = NULL
                                     , retries = 10
                                     , .progress = "text"
@@ -173,13 +181,28 @@ synthetic.dataset.quick <- function( num.entities = 10
         }
 
         if (is.null(u)) u <- matrix(NaN, steps + 1, length(initial.generator(i)))
-        
-        data.frame( time = seq(0, tmax, length.out = steps + 1), u = u)
+
+        if (include.derivatives){
+            res <- data.frame( time = seq(0, tmax, length.out = steps + 1), u = u, dudt = lpoly_system_evalfun(sys)(u))
+            colnames(res) <- c("time", paste0("u.", seq_len(dimension)), paste0("du.", seq_len(dimension)))
+        }else{
+            res <- data.frame( time = seq(0, tmax, length.out = steps + 1), u = u)
+        }
+        res
     }, .progress = .progress)
     
     colnames(df)[[1]] <- "entity"
-    df[,c(-1,-2)] <- df[,c(-1,-2)] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd), num.entities * (steps + 1), dimension)
-    if (do.standardise) df[,c(-1,-2)] <- sapply(df[,c(-1,-2)], standardise)
+    vnames <- paste0("u.", seq_len(dimension))
+    dnames <- paste0("du.", seq_len(dimension))
+    
+    df[,vnames] <- df[,vnames] + matrix(rnorm(dimension * num.entities * (steps+1), 0, observation.noise.sd^2), num.entities * (steps + 1), dimension)
+
+    if (do.standardise){
+        df[,vnames] <- sapply(df[,vnames], standardise)
+        for (i in seq_len(dimension)){
+            df[,dnames[i]] <-  df[,dnames[i]] / attr(df[,vnames[i]], "scaled:scale")
+        }
+    }
     tt <- as.time.table(df, "entity", "time")
     if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
 
