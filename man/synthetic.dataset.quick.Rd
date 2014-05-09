@@ -5,8 +5,9 @@
 synthetic.dataset.quick(num.entities = 10, tmax = 2, steps = 100 * tmax,
   process.noise.sd = 0, observation.noise.sd = 0, do.standardise = F,
   initial.generator = function(i) {     rnorm(3) },
-  sys = lpoly_examples_lorenz(), at.times = NULL, save.to = NULL,
-  retries = 10, .progress = "text", ...)
+  sys = lpoly_examples_lorenz(), at.times = NULL,
+  include.derivatives = FALSE, save.to = NULL, retries = 10,
+  .progress = "text", ...)
 }
 \arguments{
   \item{num.entities}{Number of sample trajectories to

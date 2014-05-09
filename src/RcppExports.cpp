@@ -140,21 +140,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // solve_implicit_sde
-NumericMatrix solve_implicit_sde(Rcpp::Function d_det, Rcpp::Function d_stoch, Rcpp::Function jacobian, double sigma, NumericVector start, double from, double to, int steps);
-RcppExport SEXP SimpleSDESampler_solve_implicit_sde(SEXP d_detSEXP, SEXP d_stochSEXP, SEXP jacobianSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
+NumericMatrix solve_implicit_sde(Rcpp::Function d_det, Rcpp::Function jacobian, double sigma, NumericVector start, double from, double to, int steps, double x_tol = 0, const char* algorithm = "TNEWTON");
+RcppExport SEXP SimpleSDESampler_solve_implicit_sde(SEXP d_detSEXP, SEXP jacobianSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP, SEXP x_tolSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< Rcpp::Function >::type d_det(d_detSEXP );
-        Rcpp::traits::input_parameter< Rcpp::Function >::type d_stoch(d_stochSEXP );
         Rcpp::traits::input_parameter< Rcpp::Function >::type jacobian(jacobianSEXP );
         Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type start(startSEXP );
         Rcpp::traits::input_parameter< double >::type from(fromSEXP );
         Rcpp::traits::input_parameter< double >::type to(toSEXP );
         Rcpp::traits::input_parameter< int >::type steps(stepsSEXP );
-        NumericMatrix __result = solve_implicit_sde(d_det, d_stoch, jacobian, sigma, start, from, to, steps);
+        Rcpp::traits::input_parameter< double >::type x_tol(x_tolSEXP );
+        Rcpp::traits::input_parameter< const char* >::type algorithm(algorithmSEXP );
+        NumericMatrix __result = solve_implicit_sde(d_det, jacobian, sigma, start, from, to, steps, x_tol, algorithm);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
@@ -162,22 +163,23 @@ BEGIN_RCPP
 END_RCPP
 }
 // solve_implicit_sde_averages
-NumericMatrix solve_implicit_sde_averages(int nrep, Rcpp::Function d_det, Rcpp::Function d_stoch, Rcpp::Function jacobian, double sigma, NumericVector start, double from, double to, int steps);
-RcppExport SEXP SimpleSDESampler_solve_implicit_sde_averages(SEXP nrepSEXP, SEXP d_detSEXP, SEXP d_stochSEXP, SEXP jacobianSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP) {
+NumericMatrix solve_implicit_sde_averages(int nrep, Rcpp::Function d_det, Rcpp::Function jacobian, double sigma, NumericVector start, double from, double to, int steps, double x_tol = 0, const char* algorithm = "TNEWTON");
+RcppExport SEXP SimpleSDESampler_solve_implicit_sde_averages(SEXP nrepSEXP, SEXP d_detSEXP, SEXP jacobianSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP, SEXP x_tolSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< int >::type nrep(nrepSEXP );
         Rcpp::traits::input_parameter< Rcpp::Function >::type d_det(d_detSEXP );
-        Rcpp::traits::input_parameter< Rcpp::Function >::type d_stoch(d_stochSEXP );
         Rcpp::traits::input_parameter< Rcpp::Function >::type jacobian(jacobianSEXP );
         Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP );
         Rcpp::traits::input_parameter< NumericVector >::type start(startSEXP );
         Rcpp::traits::input_parameter< double >::type from(fromSEXP );
         Rcpp::traits::input_parameter< double >::type to(toSEXP );
         Rcpp::traits::input_parameter< int >::type steps(stepsSEXP );
-        NumericMatrix __result = solve_implicit_sde_averages(nrep, d_det, d_stoch, jacobian, sigma, start, from, to, steps);
+        Rcpp::traits::input_parameter< double >::type x_tol(x_tolSEXP );
+        Rcpp::traits::input_parameter< const char* >::type algorithm(algorithmSEXP );
+        NumericMatrix __result = solve_implicit_sde_averages(nrep, d_det, jacobian, sigma, start, from, to, steps, x_tol, algorithm);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

@@ -2,15 +2,13 @@
 \alias{solve_implicit_sde}
 \title{General implicit SDE simulator}
 \usage{
-solve_implicit_sde(d_det, d_stoch, jacobian, sigma, start, from, to, steps)
+solve_implicit_sde(d_det, jacobian, sigma, start, from, to, steps, x_tol = 0,
+  algorithm = "TNEWTON")
 }
 \arguments{
   \item{d_det}{Deterministic component: an R function: (m x
   n matrix of m states, scalar time) -> m x n matrix of m
   time derivatives}
-
-  \item{d_stoch}{Stochastic component: an R function: (1 x
-  n matrix state, scalar time) -> 1 x n matrix state}
 
   \item{jacobian}{Jacobian of deterministic component: an R
   function: (1 x n matrix state, scalar time) -> n x n

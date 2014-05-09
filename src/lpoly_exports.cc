@@ -108,23 +108,10 @@ NumericMatrix lpoly_sde(XPtr<lpoly_system_type> sys
 			, const char* algorithm = "TNEWTON") {
 
   const double dt = (to - from)/steps;
-  vector<double> state = as<vector<double> >(start);
-  NumericMatrix result(steps+1, start.size());
+  lpoly_system s(sys);
+  nlopt_stepper stepper(&s, dt, start.size(), sigma, steps, x_tol, algorithm);
 
-  nlopt_stepper stepper(sys, dt, start.size(), sigma, steps, x_tol, algorithm);
-
-  for(int j = 0; j < start.size(); ++j){
-    result(0, j) = state[j];
-  }
-
-  for(int i = 1; i <= steps; ++i) {
-    stepper.do_step(state, i*dt);
-    for(int j = 0; j < start.size(); ++j){
-      result(i, j) = state[j];
-    }
-  }
-
-  return result;
+  return lpoly_sde(stepper, start, from, to, steps, x_tol, algorithm);
 }
 
 
@@ -149,23 +136,10 @@ NumericMatrix lpoly_sde_precached(XPtr<lpoly_system_type> sys
 				  , const char* algorithm = "TNEWTON") {
 
   const double dt = (to - from)/steps;
-  vector<double> state = as<vector<double> >(start);
-  NumericMatrix result(steps+1, start.size());
+  lpoly_system s(sys);
+  nlopt_stepper stepper(&s, dt, start.size(), as_ublas_matrix(noise), x_tol, algorithm);
 
-  nlopt_stepper stepper(sys, dt, start.size(), as_ublas_matrix(noise), x_tol, algorithm);
-
-  for(int j = 0; j < start.size(); ++j){
-    result(0, j) = state[j];
-  }
-
-  for(int i = 1; i <= steps; ++i) {
-    stepper.do_step(state, i*dt);
-    for(int j = 0; j < start.size(); ++j){
-      result(i, j) = state[j];
-    }
-  }
-
-  return result;
+  return lpoly_sde(stepper, start, from, to, steps, x_tol, algorithm);
 }
 
 //' LPoly System Implicit SDE Simulator: time-wise averages

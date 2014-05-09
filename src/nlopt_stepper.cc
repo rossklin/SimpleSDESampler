@@ -1,55 +1,71 @@
+/* Software License Agreement (BSD License)
+ *
+ * Copyright (c) 2014, Ross Linscott (rossklin@gmail.com)
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *     Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *
+ *     The names of its contributors may not be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "../inst/include/SimpleSDESampler.h"
 
 double nlopt_objective(const std::vector<double> &x, std::vector<double> &grad, void* f_data);
   
-uvector nlopt_stepper_data::evalfun(uvector state){
-  return sys -> first.evalfun(state);
+nlopt_stepper::nlopt_stepper(general_system *s, double h, int dim, double sigma, int steps, double xtol, const char* algorithm){
+  setup(s, h, dim, xtol, algorithm);
+  s -> build_noise(steps + 2, dim, sigma);
 }
 
-umatrix nlopt_stepper_data::jacobian(uvector state){
-  umatrix out;
-  sys -> second(state, out, 0);
-  return out;
-}
-
-uvector nlopt_stepper_data::noisefun(double t){
-  return sys -> first.noise(t);
-}
-
-nlopt_stepper::nlopt_stepper(lpoly_system_type *sys, double h, int dim, double sigma, int steps, double xtol, const char* algorithm){
-  setup(sys, h, dim, xtol, algorithm);
-  data.sys -> first.build_noise(steps + 2, data.dim, sigma);
-}
-
-nlopt_stepper::nlopt_stepper(lpoly_system_type *sys, double h, int dim, umatrix noise, double xtol, const char* algorithm){
-  setup(sys, h, dim, xtol, algorithm);
-  sys -> first.set_noise(noise);
+nlopt_stepper::nlopt_stepper(general_system *s, double h, int dim, umatrix noise, double xtol, const char* algorithm){
+  setup(s, h, dim, xtol, algorithm);
+  s -> set_noise(noise);
 }
 
 nlopt_stepper::~nlopt_stepper(){
   delete optimizer;
 }
 
-void nlopt_stepper::setup(lpoly_system_type *sys, double h, int dim, double xtol, const char* algorithm){
-  data.sys = sys;
-  data.dim = dim;
-  data.h = h;
+void nlopt_stepper::setup(general_system *s, double h, int dim, double xtol, const char* algorithm){
 
-  data.sys -> first.set_h(h);
+  sys = s;
+  sys -> dim = dim;
+  sys -> set_h(h);
 
   if (!strcmp(algorithm, "TNEWTON")){
-    optimizer = new nlopt::opt(nlopt::LD_TNEWTON, data.dim);
+    optimizer = new nlopt::opt(nlopt::LD_TNEWTON, sys -> dim);
   }else if (!strcmp(algorithm, "TNEWTON_RESTART")){
-    optimizer = new nlopt::opt(nlopt::LD_TNEWTON_RESTART, data.dim);
+    optimizer = new nlopt::opt(nlopt::LD_TNEWTON_RESTART, sys -> dim);
   }else if (!strcmp(algorithm, "LBFGS")){
-    optimizer = new nlopt::opt(nlopt::LD_LBFGS, data.dim);
+    optimizer = new nlopt::opt(nlopt::LD_LBFGS, sys -> dim);
   }else{
     Rcpp::Rcout << "nlopt_stepper: invalid algorithm: " << algorithm << endl;
     exit(-1);
   }
 
-  optimizer -> set_min_objective(nlopt_objective, &data);
+  optimizer -> set_min_objective(nlopt_objective, sys);
   //optimizer -> set_ftol_abs(xtol);
   //optimizer -> set_ftol_rel(0.01);
   optimizer -> set_stopval(xtol);
@@ -60,8 +76,8 @@ void nlopt_stepper::setup(lpoly_system_type *sys, double h, int dim, double xtol
 void nlopt_stepper::do_step(std::vector<double> &x, double t){
   double f_opt;
   
-  data.t = t;
-  data.u_old = as_ublas_vector(x);
+  sys -> t = t;
+  sys -> u_old = as_ublas_vector(x);
 
   optimizer -> optimize(x, f_opt);
 }
@@ -72,7 +88,7 @@ double nlopt_objective(const std::vector<double> &x, std::vector<double> &grad, 
   // g_j = sum_i 2 (-X_i + f_i(X) h + x_i + sqrt(h) E_i) (-d_ij + J_ij) 
   // g = 2 (f(X) h - X + x + sqrt(h) E) (J - I) 
 
-  nlopt_stepper_data *s = (nlopt_stepper_data *)f_data;
+  general_system *s = (general_system*)f_data;
   uvector u = as_ublas_vector(x);
   uvector f;
   uvector e;
@@ -81,7 +97,7 @@ double nlopt_objective(const std::vector<double> &x, std::vector<double> &grad, 
   uvector g;
   uvector vobj;
   double obj;
-  double h = s -> h;
+  double h = s -> get_h();
   uvector u_old = s -> u_old;
   double t = s -> t + h;
 

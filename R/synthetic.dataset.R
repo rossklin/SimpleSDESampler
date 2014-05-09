@@ -51,23 +51,22 @@
 #' @export
 
 synthetic.dataset <- function( num.entities = 10
-                              , tmax = 10
-                              , steps = 400 * tmax
+                              , tmax = 2
+                              , steps = 100 * tmax
                               , process.noise.sd = 0
-                              , observation.noise.sd = .01
+                              , observation.noise.sd = 0
                               , do.standardise = F
                               , initial.generator = function(i){
                                   rnorm(3)
                               }
                               , det.deriv = examples.gensys.det.lorenz
-                              , stoch.deriv = function(x, t) diag(rep(1,3))
 			      , jacobian = examples.gensys.jacob.lorenz
-                              , at.times = seq(0, tmax, length.out = 1001)
+                              , at.times = NULL
                               , include.derivatives = FALSE
 			      , save.to = NULL
                               , retries = 10){
 
-    if (!isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax + 0.5)))) stop("Times don't match!")
+    if (!is.null(at.times) & !isTRUE(all.equal(at.times * steps / tmax, as.integer(at.times * steps / tmax + 0.5)))) stop("Times don't match!")
 
     dimension = length(initial.generator(0))
 
@@ -76,7 +75,6 @@ synthetic.dataset <- function( num.entities = 10
 
         while (rt < retries){
             u = tryCatch( solve_implicit_sde( d_det = det.deriv
-                , d_stoch = stoch.deriv
                 , jacobian = jacobian
                 , sigma = process.noise.sd
                 , start = initial.generator(i)

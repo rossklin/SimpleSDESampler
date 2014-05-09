@@ -79,7 +79,6 @@ solve_general_sde <- function(d_det, d_stoch, start, from, to, steps) {
 #' General implicit SDE simulator
 #'
 #' @param d_det Deterministic component: an R function: (m x n matrix of m states, scalar time) -> m x n matrix of m time derivatives
-#' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
 #' @param jacobian Jacobian of deterministic component: an R function: (1 x n matrix state, scalar time) -> n x n matrix df_i / du_j
 #' @param sigma Amplitude of noise: scalar
 #' @param start Initial position: n vector
@@ -87,8 +86,8 @@ solve_general_sde <- function(d_det, d_stoch, start, from, to, steps) {
 #' @param to Final time: scalar
 #' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
 #' @export
-solve_implicit_sde <- function(d_det, d_stoch, jacobian, sigma, start, from, to, steps) {
-    .Call('SimpleSDESampler_solve_implicit_sde', PACKAGE = 'SimpleSDESampler', d_det, d_stoch, jacobian, sigma, start, from, to, steps)
+solve_implicit_sde <- function(d_det, jacobian, sigma, start, from, to, steps, x_tol = 0, algorithm = "TNEWTON") {
+    .Call('SimpleSDESampler_solve_implicit_sde', PACKAGE = 'SimpleSDESampler', d_det, jacobian, sigma, start, from, to, steps, x_tol, algorithm)
 }
 
 #' General implicit SDE simulator: time-wise averages
@@ -103,7 +102,7 @@ solve_implicit_sde <- function(d_det, d_stoch, jacobian, sigma, start, from, to,
 #' @param to Final time: scalar
 #' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
 #' @export
-solve_implicit_sde_averages <- function(nrep, d_det, d_stoch, jacobian, sigma, start, from, to, steps) {
-    .Call('SimpleSDESampler_solve_implicit_sde_averages', PACKAGE = 'SimpleSDESampler', nrep, d_det, d_stoch, jacobian, sigma, start, from, to, steps)
+solve_implicit_sde_averages <- function(nrep, d_det, jacobian, sigma, start, from, to, steps, x_tol = 0, algorithm = "TNEWTON") {
+    .Call('SimpleSDESampler_solve_implicit_sde_averages', PACKAGE = 'SimpleSDESampler', nrep, d_det, jacobian, sigma, start, from, to, steps, x_tol, algorithm)
 }
 

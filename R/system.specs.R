@@ -224,7 +224,7 @@ examples.gensys.jacob.lorenz <- function(u_,t){
     y <- u[2]
     z <- u[3]
 
-    matrix(c( -sigma, sigma, 0 
-    	      , r - 20 * z, -1, -20 * x
-	      , 5 * y, 5 * x, -b), nrow = 3, ncol = 3)
+    t(matrix(c( -sigma, sigma, 0 
+               , r - 20 * z, -1, -20 * x
+               , 5 * y, 5 * x, -b), nrow = 3, ncol = 3))
 }

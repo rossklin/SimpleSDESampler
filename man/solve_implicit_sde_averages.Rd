@@ -2,8 +2,8 @@
 \alias{solve_implicit_sde_averages}
 \title{General implicit SDE simulator: time-wise averages}
 \usage{
-solve_implicit_sde_averages(nrep, d_det, d_stoch, jacobian, sigma, start, from,
-  to, steps)
+solve_implicit_sde_averages(nrep, d_det, jacobian, sigma, start, from, to,
+  steps, x_tol = 0, algorithm = "TNEWTON")
 }
 \arguments{
   \item{nrep}{Number of repetitions to average over:

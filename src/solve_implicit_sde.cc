@@ -1,3 +1,35 @@
+/* Software License Agreement (BSD License)
+ *
+ * Copyright (c) 2014, Ross Linscott (rossklin@gmail.com)
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *     Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in
+ *     the documentation and/or other materials provided with the
+ *     distribution.
+ *
+ *     The names of its contributors may not be used to endorse or promote products
+ *     derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 #if defined(NDEBUG)
 #undef NDEBUG
 #endif
@@ -12,88 +44,14 @@
 #include <utility>
 #include <exception>
 
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/normal_distribution.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-
-
 #include <Rcpp.h>
 
 #include "../inst/include/SimpleSDESampler.h"
 
 
-struct r_deriv{
-  double h;
-  Rcpp::Function det;
-  Rcpp::Function stoch;
-  umatrix noise_precache;
-
-  r_deriv(Rcpp::Function d, Rcpp::Function s, double delta_t) : det(d), stoch(s), h(delta_t){}
-
-  void operator()(uvector &q, uvector &out, double t){
-    NumericMatrix rq = as_r_matrix(q);
-    uvector dpart = as_ublas_vector(det(rq, t));
-    umatrix spart = as_ublas_matrix(stoch(rq, t));
-    uvector buf(spart.size1());
-    
-    axpy_prod(spart, noise(t), buf);
-
-    out = dpart + (1 / sqrt(h)) * buf;
-  }
-
-  uvector noise(double t){
-    int idx = t / h;
-    int dim = noise_precache.size2();
-    uvector x(dim);
-
-    if (idx >= noise_precache.size1()){
-      Rcpp::Rcout << "Invalid time index: " << idx << endl;
-      exit(1);
-    }
-
-    memcpy(&x[0], &noise_precache(idx,0), dim * sizeof(double));
-    return x;
-  }
-
-  void build_noise(int n, int d, double sigma){
-    int i;
-    int size = n * d;
-    double *p;
-
-    boost::mt19937 gener;
-    boost::normal_distribution<> normal(0,sigma*sigma);
-    boost::variate_generator<boost::mt19937&,boost::normal_distribution<> > rng(gener, normal);
-
-    boost::posix_time::time_duration diff_time = boost::posix_time::microsec_clock::local_time() - boost::posix_time::second_clock::local_time();
-    unsigned int the_seed = diff_time.total_microseconds();
-  
-    rng.engine().seed(the_seed);
-    rng.distribution().reset();
-
-    noise_precache.resize(n, d);
-    p = &noise_precache(0,0);
-    
-    for (i = 0; i < size; i++){
-      p[i] = rng();
-    }
-  }
-};
-
-struct r_jacobian{
-  Rcpp::Function J;
-
-  r_jacobian(Rcpp::Function j) : J(j){}
-
-  void operator()(uvector &q, umatrix &out, double t){
-    out = as_ublas_matrix(J(as_r_matrix(q), t));
-  }
-};
-
 //' General implicit SDE simulator
 //'
 //' @param d_det Deterministic component: an R function: (m x n matrix of m states, scalar time) -> m x n matrix of m time derivatives
-//' @param d_stoch Stochastic component: an R function: (1 x n matrix state, scalar time) -> 1 x n matrix state
 //' @param jacobian Jacobian of deterministic component: an R function: (1 x n matrix state, scalar time) -> n x n matrix df_i / du_j
 //' @param sigma Amplitude of noise: scalar
 //' @param start Initial position: n vector
@@ -103,28 +61,29 @@ struct r_jacobian{
 //' @export
 // [[Rcpp::export]]
 NumericMatrix solve_implicit_sde(Rcpp::Function d_det
-				 , Rcpp::Function d_stoch
 				 , Rcpp::Function jacobian
 				 , double sigma
 				 , NumericVector start
-				 , double from, double to, int steps ) {
+				 , double from, double to, int steps
+				 , double x_tol = 0
+				 , const char* algorithm = "TNEWTON") {
 
-  implicit_euler<double> stepper;
   const double dt = (to - from)/steps;
-  r_deriv sd = r_deriv(d_det, d_stoch, dt);
-  r_jacobian sj = r_jacobian(jacobian);
-  uvector state = as_ublas_vector(start);
+  std::vector<double> state = as<std::vector<double> >(start);
   NumericMatrix result(steps+1, start.size());
 
-  sd.build_noise(steps + 2, start.size(), sigma);
+  g_system s(&d_det, &jacobian);
+  nlopt_stepper stepper(&s, dt, start.size(), sigma, steps, x_tol, algorithm);
 
-  for(int j = 0; j < start.size(); ++j)
+  for(int j = 0; j < start.size(); ++j){
     result(0, j) = state[j];
+  }
 
   for(int i = 1; i <= steps; ++i) {
-    stepper.do_step(std::make_pair(sd, sj), state, i*dt, dt);
-    for(int j = 0; j < start.size(); ++j)
+    stepper.do_step(state, i*dt);
+    for(int j = 0; j < start.size(); ++j){
       result(i, j) = state[j];
+    }
   }
 
   return result;
@@ -145,11 +104,12 @@ NumericMatrix solve_implicit_sde(Rcpp::Function d_det
 // [[Rcpp::export]]
 NumericMatrix solve_implicit_sde_averages( int nrep
 					   , Rcpp::Function d_det
-					   , Rcpp::Function d_stoch
 					   , Rcpp::Function jacobian
 					   , double sigma
 					   , NumericVector start
-					   , double from, double to, int steps){
+					   , double from, double to, int steps
+					   , double x_tol = 0
+					   , const char* algorithm = "TNEWTON"){
   
   NumericMatrix result(steps+1, start.size());
   NumericMatrix buf;
@@ -163,13 +123,14 @@ NumericMatrix solve_implicit_sde_averages( int nrep
   
   for (i = 0; i < nrep; i++){
     buf = solve_implicit_sde( d_det
-			      , d_stoch
 			      , jacobian
 			      , sigma
 			      , start
 			      , from
 			      , to
-			      , steps);
+			      , steps
+			      , x_tol
+			      , algorithm);
 
     q = &buf(0,0);
     for (j = 0; j < smax; j++){

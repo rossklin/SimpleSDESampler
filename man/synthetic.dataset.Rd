@@ -2,13 +2,12 @@
 \alias{synthetic.dataset}
 \title{Generate Synthetic Dataset}
 \usage{
-synthetic.dataset(num.entities = 10, tmax = 10, steps = 400 * tmax,
-  process.noise.sd = 0, observation.noise.sd = 0.01, do.standardise = F,
+synthetic.dataset(num.entities = 10, tmax = 2, steps = 100 * tmax,
+  process.noise.sd = 0, observation.noise.sd = 0, do.standardise = F,
   initial.generator = function(i) {     rnorm(3) },
-  det.deriv = examples.gensys.det.lorenz, stoch.deriv = function(x, t)
-  diag(rep(1, 3)), jacobian = examples.gensys.jacob.lorenz,
-  at.times = seq(0, tmax, length.out = 1001), save.to = NULL,
-  retries = 10)
+  det.deriv = examples.gensys.det.lorenz,
+  jacobian = examples.gensys.jacob.lorenz, at.times = NULL,
+  include.derivatives = FALSE, save.to = NULL, retries = 10)
 }
 \arguments{
   \item{num.entities}{Number of sample trajectories to
