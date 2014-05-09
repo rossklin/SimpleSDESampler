@@ -4,7 +4,6 @@
 #' @docType package
 #' 
 #' @useDynLib SimpleSDESampler
-#' @useDynLib nlopt
 #' @exportPattern "^[[:alpha:]]+"
 #' @importFrom Rcpp evalCpp
 #' @import plyr 
@@ -19,4 +18,7 @@
 #' \item \code{\link{lpoly_implicit_sde}}
 #' \item \code{\link{lpoly_implicit_sde_averages}}
 #' }
-NULL
+
+.onLoad <- function(libloc, pkgname){
+    library.dynam("nlopt", pkgname, libloc)
+}
