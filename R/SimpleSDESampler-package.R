@@ -3,7 +3,6 @@
 #' @name SimpleSDESampler
 #' @docType package
 #' 
-#' @useDynLib SimpleSDESampler
 #' @exportPattern "^[[:alpha:]]+"
 #' @importFrom Rcpp evalCpp
 #' @import plyr 
@@ -20,5 +19,5 @@
 #' }
 
 .onLoad <- function(libloc, pkgname){
-    library.dynam("nlopt", pkgname, libloc)
+    library.dynam("SimpleSDESampler", pkgname, libloc)
 }
