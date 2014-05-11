@@ -3,8 +3,8 @@ PKG_LIBS += -L../inst/lib -lnlopt
 
 .PHONY: all mylibs dummy
 
-dummy: 
-       ./dummy_script.sh
+dummy:
+	./dummy_script.sh
 
 all: $(SHLIB)
 
