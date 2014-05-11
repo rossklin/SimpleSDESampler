@@ -2,10 +2,13 @@ PKG_CPPFLAGS += -I. -I../inst/include
 PKG_LIBS += -L../inst/lib -lnlopt
 
 .PHONY: all mylibs
+	echo "phony"
 
 all: $(SHLIB)
+	echo "shlib: ".$(SHLIB)
 
 $(SHLIB): mylibs
+	echo "calling mylibs"
 
 mylibs:
 	./dummy_script.sh
