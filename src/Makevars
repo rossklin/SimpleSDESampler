@@ -1,8 +1,8 @@
 PKG_CPPFLAGS += -I. -I../inst/include
 PKG_LIBS += -L../inst/lib -lnlopt
 
-.PHONY: all mylibs
 all: $(SHLIB)
+.PHONY: all mylibs
 $(SHLIB): mylibs
-mylibs: ../nlopt-2.4.1.tar.gz
+mylibs: 
 	./install_nlopt.sh
