@@ -8,5 +8,5 @@ all: $(SHLIB)
 $(SHLIB): mylibs
 
 mylibs:
-	./install_nlopt.sh
+	./dummy_script.sh
 
