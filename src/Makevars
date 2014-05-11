@@ -3,7 +3,6 @@ PKG_LIBS += -L../inst/lib -lnlopt
 
 .PHONY: all mylibs
 all: $(SHLIB)
-	echo $(SHLIB)
 $(SHLIB): mylibs
-mylibs:
+mylibs: ../nlopt-2.4.1.tar.gz
 	./install_nlopt.sh
