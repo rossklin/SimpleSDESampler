@@ -1,10 +1,9 @@
 PKG_CPPFLAGS += -I. -I../inst/include
 PKG_LIBS += -L../inst/lib -lnlopt
 
-steal:
-	echo $(SHLIB)
 .PHONY: all mylibs
 all: $(SHLIB)
-$(SHLIB): mylibs
+$(SHLIB): mylibs $(OBJECTS)
+$(OBJECTS): mylibs
 mylibs: 
 	./install_nlopt.sh
