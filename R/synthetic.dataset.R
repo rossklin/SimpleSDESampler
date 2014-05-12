@@ -110,7 +110,7 @@ synthetic.dataset <- function( num.entities = 10
         }
     }
     tt <- as.time.table(df, "entity", "time")
-    if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
+    if (!is.null(at.times)) tt <- subset(tt, times = list(time = at.times), index = unique(index(tt)))
     
     if (!is.null(save.to)){
         write.csv(tt, save.to, row.names = F)
@@ -211,7 +211,7 @@ synthetic.dataset.quick <- function( num.entities = 10
         }
     }
     tt <- as.time.table(df, "entity", "time")
-    if (!is.null(at.times)) tt <- subset(tt, times = at.times, index = unique(index(tt)))
+    if (!is.null(at.times)) tt <- subset(tt, times = list(time = at.times), index = unique(index(tt)))
 
     if (nrow(na.omit(tt)) != nrow(tt)) warning("Non-numeic values introduced, may be caused by too long time steps or by a mismatch between generation and output times")
     
