@@ -138,15 +138,15 @@ synthetic.dataset <- function( num.entities = 10
 #' @export
 
 synthetic.dataset.quick <- function( num.entities = 10
+                                    , sys = lpoly_examples_lorenz()
                                     , tmax = 2
                                     , steps = 100 * tmax
                                     , process.noise.sd = 0
                                     , observation.noise.sd = 0
                                     , do.standardise = F
                                     , initial.generator = function(i){
-                                        rnorm(3)
+                                        rnorm(lpoly_system_specs(sys)$dimension)
                                     }
-                                    , sys = lpoly_examples_lorenz()
                                     , at.times = NULL
                                     , include.derivatives = FALSE
                                     , save.to = NULL

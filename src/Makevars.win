@@ -1,1 +1,9 @@
-PKG_CPPFLAGS += -I.
+PKG_CPPFLAGS += -I. -I..\inst\include
+PKG_LIBS += -L..\inst\lib -lnlopt
+
+.PHONY: all mylibs
+all: $(SHLIB)
+$(SHLIB): mylibs $(OBJECTS)
+$(OBJECTS): mylibs
+mylibs: 
+	./install_nlopt.sh

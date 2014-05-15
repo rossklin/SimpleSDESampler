@@ -6,6 +6,7 @@ lpoly_make_system <- function(mcm, mspec){
     lsys <- lpoly_make_system_xptr(mcm, mspec)
     attr(lsys, "mcm") <- mcm
     attr(lsys, "mspec") <- mspec
+    attr(lsys, "dimension") <- ncol(mspec)
     lsys
 }
 
@@ -45,6 +46,7 @@ lpoly_system_specs <- function(sys){
     res <- NULL
     res$mcm <- attr(sys, "mcm")
     res$mspec <- attr(sys, "mspec")
+    res$dimension <- attr(sys, "dimension")
     res
 }
 
