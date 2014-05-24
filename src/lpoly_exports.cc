@@ -105,7 +105,7 @@ NumericMatrix lpoly_sde(XPtr<lpoly_system_type> sys
 			, NumericVector start
 			, double from, double to, int steps 
 			, double x_tol = 0
-			, const char* algorithm = "TNEWTON") {
+			, const char* algorithm = "LBFGS") {
 
   const double dt = (to - from)/steps;
   lpoly_system s(sys);
@@ -133,7 +133,7 @@ NumericMatrix lpoly_sde_precached(XPtr<lpoly_system_type> sys
 				  , double to
 				  , int steps 
 				  , double x_tol = 0
-				  , const char* algorithm = "TNEWTON") {
+				  , const char* algorithm = "LBFGS") {
 
   const double dt = (to - from)/steps;
   lpoly_system s(sys);

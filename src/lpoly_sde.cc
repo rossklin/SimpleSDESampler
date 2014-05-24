@@ -64,7 +64,7 @@ NumericMatrix lpoly_sde(nlopt_stepper &stepper
   }
 
   for(int i = 1; i <= steps; ++i) {
-    stepper.do_step(state, i*dt);
+    stepper.do_step(state, (i-1)*dt);
     for(int j = 0; j < start.size(); ++j){
       result(i, j) = state[j];
     }

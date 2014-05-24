@@ -89,7 +89,7 @@ void lpoly_evaluator::operator()(uvector &query, uvector &out, double t) {
 }
 
 uvector lpoly_evaluator::noise(double t){
-  int idx = t / h;
+  int idx = t / h + 0.5;
   int dim = noise_precache.size2();
   uvector x(dim);
 
@@ -149,6 +149,8 @@ void lpoly_jacobian::operator()(uvector &q, umatrix &out, double t){
       // compute derivative of term i with respect to variable j
       term_derivs(i,j) = 1;
       for (k = 0; k < terms.ncol(); k++){
+	// do something about corny case: q = 0, terms(i,k) = 0, j = k
+	// which causes NAN but should actually be zero
 	term_derivs(i,j) *= pow(terms(i, k), j == k) * pow(q(k), terms(i,k) - (j == k));
       }
     }

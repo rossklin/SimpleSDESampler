@@ -143,8 +143,8 @@ struct nlopt_stepper{
   general_system *sys;
   nlopt::opt *optimizer;
 
-  nlopt_stepper(general_system *sys, double h, int dim, double sigma, int steps, double xtol = 0, const char* algorithm = "TNEWTON");
-  nlopt_stepper(general_system *sys, double h, int dim, umatrix noise, double xtol = 0, const char* algorithm = "TNEWTON");
+  nlopt_stepper(general_system *sys, double h, int dim, double sigma, int steps, double xtol = 0, const char* algorithm = "LBFGS");
+  nlopt_stepper(general_system *sys, double h, int dim, umatrix noise, double xtol = 0, const char* algorithm = "LBFGS");
   ~nlopt_stepper();
   void setup(general_system *sys, double h, int dim, double xtol, const char* algorithm);
   void do_step(std::vector<double> &x, double t);

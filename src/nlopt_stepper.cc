@@ -75,11 +75,19 @@ void nlopt_stepper::setup(general_system *s, double h, int dim, double xtol, con
 
 void nlopt_stepper::do_step(std::vector<double> &x, double t){
   double f_opt;
+
+#ifdef VERBOSE
+  Rcpp::Rcout << "STARTING STEP FROM " << x[0] << " at t = " << t << endl;
+#endif
   
   sys -> t = t;
   sys -> u_old = as_ublas_vector(x);
 
   optimizer -> optimize(x, f_opt);
+
+#ifdef VERBOSE
+  Rcpp::Rcout << "RESULTING POSTION: " << x[0] << ", obj = " << f_opt << endl;
+#endif
 }
 
 double nlopt_objective(const std::vector<double> &x, std::vector<double> &grad, void* f_data){
@@ -99,19 +107,23 @@ double nlopt_objective(const std::vector<double> &x, std::vector<double> &grad, 
   double obj;
   double h = s -> get_h();
   uvector u_old = s -> u_old;
-  double t = s -> t + h;
+  double t = s -> t;
 
   int i;
 
   f = s -> evalfun(u);
   J = s -> jacobian(u);
   e = s -> noisefun(t);
-  
+
   vobj = h * f + sqrt(h) * e + u_old - u;
   obj = 0;
   for(i = 0; i < s -> dim; i++){
     obj += pow(vobj(i), 2);
   }
+
+#ifdef VERBOSE
+  Rcpp::Rcout << "t " << t << ": from " << u_old(0) << " to " << u(0) << ": sqrt(h) e = " << sqrt(h) * e(0) << "(du = " << u(0) - u_old(0) <<"), evalfun = " << f(0) << ", J = " << J(0,0) << endl;
+#endif
 
   g = prod(2 * vobj, h * J - I);
 

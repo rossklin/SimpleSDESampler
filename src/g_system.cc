@@ -50,7 +50,7 @@ umatrix g_system::jacobian(uvector state){
 }
 
 uvector g_system::noisefun(double t){
-  int idx = t / h;
+  int idx = t / h + 0.5;
   int dim = noise_precache.size2();
   uvector x(dim);
 
