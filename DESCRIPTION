@@ -6,7 +6,7 @@ Date: 2014-03-13
 Author: Ross Linscott
 Maintainer: Ross Linscott <rossklin@gmail.com>
 Description: Samples paths from Ito form SDEs
-License: BSD
+License: BSD (nlopt seperate)
 Imports:
     Rcpp (>= 0.11.0),
     plyr,
