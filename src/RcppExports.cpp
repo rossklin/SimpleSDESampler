@@ -55,7 +55,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // lpoly_sde
-NumericMatrix lpoly_sde(XPtr<lpoly_system_type> sys, double sigma, NumericVector start, double from, double to, int steps, double x_tol = 0, const char* algorithm = "TNEWTON");
+NumericMatrix lpoly_sde(XPtr<lpoly_system_type> sys, double sigma, NumericVector start, double from, double to, int steps, double x_tol = 0, const char* algorithm = "LBFGS");
 RcppExport SEXP SimpleSDESampler_lpoly_sde(SEXP sysSEXP, SEXP sigmaSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP, SEXP x_tolSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
@@ -77,7 +77,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // lpoly_sde_precached
-NumericMatrix lpoly_sde_precached(XPtr<lpoly_system_type> sys, NumericMatrix noise, NumericVector start, double from, double to, int steps, double x_tol = 0, const char* algorithm = "TNEWTON");
+NumericMatrix lpoly_sde_precached(XPtr<lpoly_system_type> sys, NumericMatrix noise, NumericVector start, double from, double to, int steps, double x_tol = 0, const char* algorithm = "LBFGS");
 RcppExport SEXP SimpleSDESampler_lpoly_sde_precached(SEXP sysSEXP, SEXP noiseSEXP, SEXP startSEXP, SEXP fromSEXP, SEXP toSEXP, SEXP stepsSEXP, SEXP x_tolSEXP, SEXP algorithmSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;

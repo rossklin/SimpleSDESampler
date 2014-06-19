@@ -22,6 +22,10 @@ lpoly_model_matrix <- function(lps, data) {
 }
 
 #' LPoly Jacobian
+#'
+#' Builds the model matrix from the data using the lpoly_system_type object
+#' @param lps XPtr to an lpoly_system_type object created by a call to lpoly_make_system
+#' @param state Single row matrix
 #' @export
 lpoly_compute_jacobian <- function(lps, state) {
     .Call('SimpleSDESampler_lpoly_compute_jacobian', PACKAGE = 'SimpleSDESampler', lps, state)
@@ -37,7 +41,7 @@ lpoly_compute_jacobian <- function(lps, state) {
 #' @param to Final time: scalar
 #' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
 #' @export
-lpoly_sde <- function(sys, sigma, start, from, to, steps, x_tol = 0, algorithm = "TNEWTON") {
+lpoly_sde <- function(sys, sigma, start, from, to, steps, x_tol = 0, algorithm = "LBFGS") {
     .Call('SimpleSDESampler_lpoly_sde', PACKAGE = 'SimpleSDESampler', sys, sigma, start, from, to, steps, x_tol, algorithm)
 }
 
@@ -51,7 +55,7 @@ lpoly_sde <- function(sys, sigma, start, from, to, steps, x_tol = 0, algorithm =
 #' @param to Final time: scalar
 #' @param steps Number of points to take, s.t. dt = (from - to) / (steps + 1): integer
 #' @export
-lpoly_sde_precached <- function(sys, noise, start, from, to, steps, x_tol = 0, algorithm = "TNEWTON") {
+lpoly_sde_precached <- function(sys, noise, start, from, to, steps, x_tol = 0, algorithm = "LBFGS") {
     .Call('SimpleSDESampler_lpoly_sde_precached', PACKAGE = 'SimpleSDESampler', sys, noise, start, from, to, steps, x_tol, algorithm)
 }
 
@@ -71,6 +75,15 @@ lpoly_sde_averages <- function(nrep, sys, sigma, start, from, to, steps) {
 }
 
 #' Simulates an SDE explicitly (derivative free)
+#' 
+#' For an Ito form SDE dx = f(x) dt + g(x) E sqrt(dt)
+#' 
+#' @param d_det R function representing f(x)
+#' @param d_stoch R function representing g(x) E
+#' @param start numeric vector with initial state
+#' @param from scalar with initial time
+#' @param to scalar with final time
+#' @param steps number of steps to take
 #' @export
 solve_general_sde <- function(d_det, d_stoch, start, from, to, steps) {
     .Call('SimpleSDESampler_solve_general_sde', PACKAGE = 'SimpleSDESampler', d_det, d_stoch, start, from, to, steps)

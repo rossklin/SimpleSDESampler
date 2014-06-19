@@ -3,7 +3,7 @@
 \title{LPoly System Implicit SDE Simulator using NLOPT}
 \usage{
 lpoly_sde(sys, sigma, start, from, to, steps, x_tol = 0,
-  algorithm = "TNEWTON")
+  algorithm = "LBFGS")
 }
 \arguments{
   \item{sys}{lpoly_system_type XPtr object created with

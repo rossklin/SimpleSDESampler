@@ -102,6 +102,15 @@ struct r_compute{
 };
 
 //' Simulates an SDE explicitly (derivative free)
+//' 
+//' For an Ito form SDE dx = f(x) dt + g(x) E sqrt(dt)
+//' 
+//' @param d_det R function representing f(x)
+//' @param d_stoch R function representing g(x) E
+//' @param start numeric vector with initial state
+//' @param from scalar with initial time
+//' @param to scalar with final time
+//' @param steps number of steps to take
 //' @export
 // [[Rcpp::export]]
 NumericMatrix solve_general_sde(Rcpp::Function d_det

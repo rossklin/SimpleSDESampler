@@ -5,6 +5,6 @@
 lpoly_guess_steplength_sample(sys, goal = 0.1, freq = 400, h0 = 1)
 }
 \description{
-LPoly steplength guesser: sampling method
+(this function is still under development)
 }
 

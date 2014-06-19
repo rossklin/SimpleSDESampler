@@ -5,6 +5,6 @@
 lpoly_guess_steplength_linear(sys)
 }
 \description{
-LPoly steplength guesser: linear method
+(this function is still under development)
 }
 

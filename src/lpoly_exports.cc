@@ -78,6 +78,10 @@ NumericMatrix lpoly_model_matrix(XPtr<lpoly_system_type> lps, NumericMatrix data
 }
 
 //' LPoly Jacobian
+//'
+//' Builds the model matrix from the data using the lpoly_system_type object
+//' @param lps XPtr to an lpoly_system_type object created by a call to lpoly_make_system
+//' @param state Single row matrix
 //' @export
 // [[Rcpp::export]]
 NumericMatrix lpoly_compute_jacobian(XPtr<lpoly_system_type> lps, NumericMatrix state){

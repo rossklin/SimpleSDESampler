@@ -2,10 +2,11 @@
 \alias{synthetic.dataset.quick}
 \title{Generate Synthetic Dataset: optimised for Laurent polynomial systems}
 \usage{
-synthetic.dataset.quick(num.entities = 10, tmax = 2, steps = 100 * tmax,
-  process.noise.sd = 0, observation.noise.sd = 0, do.standardise = F,
-  initial.generator = function(i) {     rnorm(3) },
-  sys = lpoly_examples_lorenz(), at.times = NULL,
+synthetic.dataset.quick(num.entities = 10, sys = lpoly_examples_lorenz(),
+  tmax = 2, steps = 100 * tmax, process.noise.sd = 0,
+  observation.noise.sd = 0, do.standardise = F,
+  initial.generator = function(i) {    
+  rnorm(lpoly_system_specs(sys)$dimension) }, at.times = NULL,
   include.derivatives = FALSE, save.to = NULL, retries = 10,
   .progress = "text", ...)
 }
