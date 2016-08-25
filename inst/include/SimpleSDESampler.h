@@ -30,6 +30,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// [[Rcpp::depends(BH)]]
+#include <Rcpp.h>
+
 #if defined(NDEBUG)
 #undef NDEBUG
 #endif
@@ -48,8 +51,6 @@
 #include <boost/numeric/ublas/matrix.hpp>
 
 #include "nlopt.hpp"
-
-#include <Rcpp.h>
 
 using Rcpp::NumericMatrix;
 using Rcpp::NumericVector;

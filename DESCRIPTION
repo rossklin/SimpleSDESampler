@@ -10,5 +10,8 @@ License: BSD (nlopt and boost seperate)
 Imports:
     Rcpp (>= 0.11.0),
     plyr,
-    timetablr
-LinkingTo: Rcpp
+    timetablr,
+    BH
+LinkingTo:
+	Rcpp,
+	BH
